@@ -105,7 +105,10 @@ Content-Type: application/json
   "email": "john.doe@example.com",
   "password": "password123",
   "name": "John Doe",
-  "managerEmail": "manager@example.com"
+  "managerEmail": "manager@example.com",
+  "joiningDate": "2024-11-01",
+  "internshipDurationMonths": 6,
+  "stipendAmount": 15000.0
 }
 ```
 
@@ -116,9 +119,10 @@ Intern onboarded successfully. Intern can now login and fill their details.
 
 **Important Notes:**
 - Only HR can onboard interns (requires HR JWT token)
-- Only email, password, name, and optional manager email are required
-- Intern will fill their own details (PAN, Aadhaar, bank details, etc.) after logging in
-- Manager email is optional
+- Required fields: email, password, name, joiningDate, internshipDurationMonths, stipendAmount
+- Optional fields: managerEmail
+- Intern will fill their own personal details (PAN, Aadhaar, bank details, address, etc.) after logging in
+- Stipend type is automatically set to MONTHLY
 
 #### 3.2 Onboard Intern 2
 **POST** `http://localhost:1234/api/interns/onboard`
@@ -134,7 +138,10 @@ Content-Type: application/json
 {
   "email": "jane.smith@example.com",
   "password": "password123",
-  "name": "Jane Smith"
+  "name": "Jane Smith",
+  "joiningDate": "2024-11-01",
+  "internshipDurationMonths": 6,
+  "stipendAmount": 15000.0
 }
 ```
 
@@ -209,7 +216,46 @@ Content-Type: application/json
 
 ### **Phase 5: Intern Details Management**
 
-#### 5.1 Update My Details (Intern 1)
+#### 5.1 Get My Details (Intern 1)
+**GET** `http://localhost:1234/api/interns/my-details`
+
+**Headers:**
+```
+Authorization: Bearer <INTERN1_TOKEN>
+```
+
+**Expected Response:**
+```json
+{
+  "id": 1,
+  "user": {
+    "id": 2,
+    "email": "john.doe@example.com",
+    "name": "John Doe",
+    "role": "INTERN"
+  },
+  "joiningDate": "2024-11-01",
+  "internshipDurationMonths": 6,
+  "stipendType": "MONTHLY",
+  "stipendAmount": 15000.0,
+  "managerEmail": "manager@example.com",
+  "panNumber": "ABCDE1234F",
+  "aadhaarNumber": "123456789012",
+  "bankAccountNumber": "1234567890",
+  "bankIfscCode": "HDFC0001234",
+  "bankName": "HDFC Bank",
+  "bankBranch": "Mumbai Branch",
+  "address": "123 Main Street",
+  "city": "Mumbai",
+  "state": "Maharashtra",
+  "pincode": "400001",
+  "phoneNumber": "9876543210"
+}
+```
+
+**Note:** Interns can view their complete details including joining date, duration, and stipend information set by HR.
+
+#### 5.2 Update My Details (Intern 1)
 **PUT** `http://localhost:1234/api/interns/my-details`
 
 **Headers:**
@@ -221,10 +267,6 @@ Content-Type: application/json
 **Request Body:**
 ```json
 {
-  "joiningDate": "2024-11-01",
-  "internshipDurationMonths": 6,
-  "stipendType": "MONTHLY",
-  "stipendAmount": 15000.0,
   "panNumber": "ABCDE1234F",
   "aadhaarNumber": "123456789012",
   "bankAccountNumber": "1234567890",
@@ -244,9 +286,9 @@ Content-Type: application/json
 Intern details updated successfully
 ```
 
-**Note:** Interns can update their own details. All fields are optional - only include fields you want to update.
+**Note:** Interns can only update their personal details (PAN, Aadhaar, bank details, address, etc.). Joining date, internship duration, and stipend amount are set by HR during onboarding and cannot be changed by interns.
 
-#### 5.2 HR Update Intern Details
+#### 5.3 HR Update Intern Details
 **PUT** `http://localhost:1234/api/interns/{internId}`
 
 **Headers:**
@@ -289,7 +331,7 @@ Intern details updated successfully
 
 ### **Phase 6: Leave Management (Intern Actions)**
 
-#### 5.1 Check Leave Balance (Intern 1)
+#### 6.1 Check Leave Balance (Intern 1)
 **GET** `http://localhost:1234/api/leaves/balance`
 
 **Headers:**
@@ -307,7 +349,7 @@ Authorization: Bearer <INTERN1_TOKEN>
 }
 ```
 
-#### 5.2 Request Leave (Intern 1)
+#### 6.2 Request Leave (Intern 1)
 **POST** `http://localhost:1234/api/leaves/request`
 
 **Headers:**
@@ -326,26 +368,56 @@ Content-Type: application/json
 
 **Expected Response:** Leave object with status PENDING
 
-#### 5.3 Request Another Leave (Intern 1)
-**POST** `http://localhost:1234/api/leaves/request`
-
-**Headers:**
-```
-Authorization: Bearer <INTERN1_TOKEN>
-Content-Type: application/json
-```
-
-**Request Body:**
+Example: 
 ```json
 {
-  "leaveDate": "2025-01-25",
-  "reason": "Family function"
+    "id": 1,
+    "intern": {
+        "id": 2,
+        "user": {
+            "id": 3,
+            "email": "rohit.joshi@jynk.com",
+            "password": "$2a$10$8dXEz4Kiw4CbBCSSJvZT4uob.AcstXdcE9XV7iiEjMGcizJvb8ete",
+            "role": "INTERN",
+            "name": "ROhit Joshi",
+            "createdAt": "2025-11-27T21:53:52",
+            "updatedAt": "2025-11-27T21:53:52"
+        },
+        "joiningDate": "2024-11-01",
+        "internshipDurationMonths": 6,
+        "stipendType": "MONTHLY",
+        "stipendAmount": 15000.0,
+        "managerEmail": "manager@example.com",
+        "panNumber": "87287821234F",
+        "aadhaarNumber": "12343936789012",
+        "bankAccountNumber": "123438890",
+        "bankIfscCode": "HDFC0001234",
+        "bankName": "HDFC Bank",
+        "bankBranch": "Mumbai Branch",
+        "address": "123 Main Street",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "pincode": "400001",
+        "phoneNumber": "9876543210",
+        "signatureFilePath": null,
+        "createdAt": "2025-11-27T21:53:52",
+        "updatedAt": "2025-11-27T21:56:45",
+        "internshipEndDate": "2025-05-01"
+    },
+    "leaveDate": "2025-01-20",
+    "reason": "Personal work",
+    "status": "PENDING",
+    "leaveType": "PAID",
+    "approvedBy": null,
+    "approvedAt": null,
+    "createdAt": "2025-11-27T21:58:39.691304228",
+    "updatedAt": "2025-11-27T21:58:39.691315362"
 }
 ```
 
 **Expected Response:** Leave object with status PENDING
 
-#### 5.4 Get My Leaves (Intern 1)
+#### 6.4 Get My Leaves (Intern 1)
 **GET** `http://localhost:1234/api/leaves/my-leaves`
 
 **Headers:**
@@ -355,7 +427,36 @@ Authorization: Bearer <INTERN1_TOKEN>
 
 **Expected Response:** Array of leave objects
 
-#### 5.5 Request Leave (Intern 2)
+Ex Response
+
+
+**Request Body:**
+```json
+[
+    {
+        "id": 1,
+        "leaveDate": "2025-01-20",
+        "reason": "Personal work",
+        "status": "PENDING",
+        "leaveType": "PAID",
+        "approvedBy": null,
+        "approvedAt": null,
+        "createdAt": "2025-11-27T21:58:40"
+    },
+    {
+        "id": 2,
+        "leaveDate": "2025-01-22",
+        "reason": "Personal work",
+        "status": "PENDING",
+        "leaveType": "PAID",
+        "approvedBy": null,
+        "approvedAt": null,
+        "createdAt": "2025-11-27T22:01:23"
+    }
+]
+```
+
+#### 6.5 Request Leave (Intern 2)
 **POST** `http://localhost:1234/api/leaves/request`
 
 **Headers:**
@@ -378,7 +479,7 @@ Content-Type: application/json
 
 ### **Phase 7: Leave Management (HR Actions)**
 
-#### 6.1 Get All Pending Leaves
+#### 7.1 Get All Pending Leaves
 **GET** `http://localhost:1234/api/leaves/pending`
 
 **Headers:**
@@ -388,7 +489,32 @@ Authorization: Bearer <HR_TOKEN>
 
 **Expected Response:** Array of pending leave requests
 
-#### 6.2 Approve Leave
+```json
+[
+    {
+        "id": 1,
+        "leaveDate": "2025-01-20",
+        "reason": "Personal work",
+        "status": "PENDING",
+        "leaveType": "PAID",
+        "approvedBy": null,
+        "approvedAt": null,
+        "createdAt": "2025-11-27T21:58:40"
+    },
+    {
+        "id": 2,
+        "leaveDate": "2025-01-22",
+        "reason": "Personal work",
+        "status": "PENDING",
+        "leaveType": "PAID",
+        "approvedBy": null,
+        "approvedAt": null,
+        "createdAt": "2025-11-27T22:01:23"
+    }
+]
+```
+
+#### 7.2 Approve Leave
 **PUT** `http://localhost:1234/api/leaves/1/approve?approvedBy=HR Manager`
 
 **Headers:**
@@ -398,7 +524,53 @@ Authorization: Bearer <HR_TOKEN>
 
 **Expected Response:** Updated leave object with status APPROVED
 
-#### 6.3 Reject Leave
+```json
+{
+    "id": 1,
+    "intern": {
+        "id": 2,
+        "user": {
+            "id": 3,
+            "email": "rohit.joshi@jynk.com",
+            "password": "$2a$10$8dXEz4Kiw4CbBCSSJvZT4uob.AcstXdcE9XV7iiEjMGcizJvb8ete",
+            "role": "INTERN",
+            "name": "ROhit Joshi",
+            "createdAt": "2025-11-27T21:53:52",
+            "updatedAt": "2025-11-27T21:53:52"
+        },
+        "joiningDate": "2024-11-01",
+        "internshipDurationMonths": 6,
+        "stipendType": "MONTHLY",
+        "stipendAmount": 15000.0,
+        "managerEmail": "manager@example.com",
+        "panNumber": "87287821234F",
+        "aadhaarNumber": "12343936789012",
+        "bankAccountNumber": "123438890",
+        "bankIfscCode": "HDFC0001234",
+        "bankName": "HDFC Bank",
+        "bankBranch": "Mumbai Branch",
+        "address": "123 Main Street",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "pincode": "400001",
+        "phoneNumber": "9876543210",
+        "signatureFilePath": null,
+        "createdAt": "2025-11-27T21:53:52",
+        "updatedAt": "2025-11-27T21:56:45",
+        "internshipEndDate": "2025-05-01"
+    },
+    "leaveDate": "2025-01-20",
+    "reason": "Personal work",
+    "status": "APPROVED",
+    "leaveType": "PAID",
+    "approvedBy": "HR Manager",
+    "approvedAt": "2025-11-27T22:06:04.621069611",
+    "createdAt": "2025-11-27T21:58:40",
+    "updatedAt": "2025-11-27T22:06:04.621395952"
+}
+```
+
+#### 7.3 Reject Leave
 **PUT** `http://localhost:1234/api/leaves/2/reject`
 
 **Headers:**
@@ -408,11 +580,57 @@ Authorization: Bearer <HR_TOKEN>
 
 **Expected Response:** Updated leave object with status REJECTED
 
+```json
+{
+    "id": 1,
+    "intern": {
+        "id": 2,
+        "user": {
+            "id": 3,
+            "email": "rohit.joshi@jynk.com",
+            "password": "$2a$10$8dXEz4Kiw4CbBCSSJvZT4uob.AcstXdcE9XV7iiEjMGcizJvb8ete",
+            "role": "INTERN",
+            "name": "ROhit Joshi",
+            "createdAt": "2025-11-27T21:53:52",
+            "updatedAt": "2025-11-27T21:53:52"
+        },
+        "joiningDate": "2024-11-01",
+        "internshipDurationMonths": 6,
+        "stipendType": "MONTHLY",
+        "stipendAmount": 15000.0,
+        "managerEmail": "manager@example.com",
+        "panNumber": "87287821234F",
+        "aadhaarNumber": "12343936789012",
+        "bankAccountNumber": "123438890",
+        "bankIfscCode": "HDFC0001234",
+        "bankName": "HDFC Bank",
+        "bankBranch": "Mumbai Branch",
+        "address": "123 Main Street",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "pincode": "400001",
+        "phoneNumber": "9876543210",
+        "signatureFilePath": null,
+        "createdAt": "2025-11-27T21:53:52",
+        "updatedAt": "2025-11-27T21:56:45",
+        "internshipEndDate": "2025-05-01"
+    },
+    "leaveDate": "2025-01-20",
+    "reason": "Personal work",
+    "status": "REJECTED",
+    "leaveType": "PAID",
+    "approvedBy": "HR Manager",
+    "approvedAt": "2025-11-27T22:06:04.621069611",
+    "createdAt": "2025-11-27T21:58:40",
+    "updatedAt": "2025-11-27T22:06:04.621395952"
+}
+```
+
 ---
 
 ### **Phase 8: Invoice Management (Intern Actions)**
 
-#### 7.1 Generate Invoice (Intern 1 - November 2024)
+#### 8.1 Generate Invoice (Intern 1 - November 2024)
 **POST** `http://localhost:1234/api/invoices/generate`
 
 **Headers:**
@@ -431,7 +649,7 @@ Content-Type: application/json
 
 **Expected Response:** Invoice object with calculated values
 
-#### 7.2 Generate Invoice (Intern 1 - December 2024)
+#### 8.2 Generate Invoice (Intern 1 - December 2024)
 **POST** `http://localhost:1234/api/invoices/generate`
 
 **Headers:**
@@ -450,7 +668,7 @@ Content-Type: application/json
 
 **Expected Response:** Invoice object with calculated values
 
-#### 7.3 Get My Invoices (Intern 1)
+#### 8.3 Get My Invoices (Intern 1)
 **GET** `http://localhost:1234/api/invoices/my-invoices`
 
 **Headers:**
@@ -459,8 +677,57 @@ Authorization: Bearer <INTERN1_TOKEN>
 ```
 
 **Expected Response:** Array of invoice objects
+```json
+{
+    "id": 1,
+    "intern": {
+        "id": 2,
+        "user": {
+            "id": 3,
+            "email": "rohit.joshi@jynk.com",
+            "password": "$2a$10$8dXEz4Kiw4CbBCSSJvZT4uob.AcstXdcE9XV7iiEjMGcizJvb8ete",
+            "role": "INTERN",
+            "name": "ROhit Joshi",
+            "createdAt": "2025-11-27T21:53:52",
+            "updatedAt": "2025-11-27T21:53:52"
+        },
+        "joiningDate": "2024-11-01",
+        "internshipDurationMonths": 6,
+        "stipendType": "MONTHLY",
+        "stipendAmount": 15000.0,
+        "managerEmail": "manager@example.com",
+        "panNumber": "87287821234F",
+        "aadhaarNumber": "12343936789012",
+        "bankAccountNumber": "123438890",
+        "bankIfscCode": "HDFC0001234",
+        "bankName": "HDFC Bank",
+        "bankBranch": "Mumbai Branch",
+        "address": "123 Main Street",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "pincode": "400001",
+        "phoneNumber": "9876543210",
+        "signatureFilePath": null,
+        "createdAt": "2025-11-27T21:53:52",
+        "updatedAt": "2025-11-27T21:56:45",
+        "internshipEndDate": "2025-05-01"
+    },
+    "invoiceNumber": "001",
+    "invoiceDate": "2025-11-27",
+    "billingPeriodFrom": "2024-11-01",
+    "billingPeriodTill": "2024-11-30",
+    "totalWorkingDays": 21,
+    "paidLeaves": 0,
+    "unpaidLeaves": 0,
+    "stipendAmount": 15000.0,
+    "status": "PENDING",
+    "remarks": null,
+    "createdAt": "2025-11-27T22:07:50.580704317",
+    "updatedAt": "2025-11-27T22:07:50.580713624"
+}
+```
 
-#### 7.4 Get Invoice HTML (Intern 1)
+#### 8.4 Get Invoice HTML (Intern 1)
 **GET** `http://localhost:1234/api/invoices/1/html`
 
 **Headers:**
@@ -470,7 +737,7 @@ Authorization: Bearer <INTERN1_TOKEN>
 
 **Expected Response:** HTML formatted invoice
 
-#### 7.5 Get Invoice by ID
+#### 8.5 Get Invoice by ID
 **GET** `http://localhost:1234/api/invoices/1`
 
 **Headers:**
@@ -484,7 +751,7 @@ Authorization: Bearer <INTERN1_TOKEN>
 
 ### **Phase 9: Invoice Management (HR Actions)**
 
-#### 8.1 Get All Invoices
+#### 9.1 Get All Invoices
 **GET** `http://localhost:1234/api/invoices/all`
 
 **Headers:**
@@ -493,8 +760,27 @@ Authorization: Bearer <HR_TOKEN>
 ```
 
 **Expected Response:** Array of all invoice objects
+```json
+[
+    {
+        "id": 1,
+        "invoiceNumber": "001",
+        "invoiceDate": "2025-11-27",
+        "billingPeriodFrom": "2024-11-01",
+        "billingPeriodTill": "2024-11-30",
+        "totalWorkingDays": 21,
+        "paidLeaves": 0,
+        "unpaidLeaves": 0,
+        "stipendAmount": 15000.0,
+        "status": "PENDING",
+        "remarks": null,
+        "internName": "ROhit Joshi",
+        "internEmail": "rohit.joshi@jynk.com"
+    }
+]
+```
 
-#### 8.2 Update Invoice Status to APPROVED
+#### 9.2 Update Invoice Status to APPROVED
 **PUT** `http://localhost:1234/api/invoices/1/status?status=APPROVED&remarks=Approved by HR`
 
 **Headers:**
@@ -503,8 +789,57 @@ Authorization: Bearer <HR_TOKEN>
 ```
 
 **Expected Response:** Updated invoice object
+```json
+{
+    "id": 1,
+    "intern": {
+        "id": 2,
+        "user": {
+            "id": 3,
+            "email": "rohit.joshi@jynk.com",
+            "password": "$2a$10$8dXEz4Kiw4CbBCSSJvZT4uob.AcstXdcE9XV7iiEjMGcizJvb8ete",
+            "role": "INTERN",
+            "name": "ROhit Joshi",
+            "createdAt": "2025-11-27T21:53:52",
+            "updatedAt": "2025-11-27T21:53:52"
+        },
+        "joiningDate": "2024-11-01",
+        "internshipDurationMonths": 6,
+        "stipendType": "MONTHLY",
+        "stipendAmount": 15000.0,
+        "managerEmail": "manager@example.com",
+        "panNumber": "87287821234F",
+        "aadhaarNumber": "12343936789012",
+        "bankAccountNumber": "123438890",
+        "bankIfscCode": "HDFC0001234",
+        "bankName": "HDFC Bank",
+        "bankBranch": "Mumbai Branch",
+        "address": "123 Main Street",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "pincode": "400001",
+        "phoneNumber": "9876543210",
+        "signatureFilePath": null,
+        "createdAt": "2025-11-27T21:53:52",
+        "updatedAt": "2025-11-27T21:56:45",
+        "internshipEndDate": "2025-05-01"
+    },
+    "invoiceNumber": "001",
+    "invoiceDate": "2025-11-27",
+    "billingPeriodFrom": "2024-11-01",
+    "billingPeriodTill": "2024-11-30",
+    "totalWorkingDays": 21,
+    "paidLeaves": 0,
+    "unpaidLeaves": 0,
+    "stipendAmount": 15000.0,
+    "status": "APPROVED",
+    "remarks": "Approved by HR",
+    "createdAt": "2025-11-27T22:07:51",
+    "updatedAt": "2025-11-27T22:11:48.762173459"
+}
+```
 
-#### 8.3 Update Invoice Status to PAID
+#### 9.3 Update Invoice Status to PAID
 **PUT** `http://localhost:1234/api/invoices/1/status?status=PAID&remarks=Payment processed`
 
 **Headers:**
@@ -513,12 +848,61 @@ Authorization: Bearer <HR_TOKEN>
 ```
 
 **Expected Response:** Updated invoice object
+```json
+{
+    "id": 1,
+    "intern": {
+        "id": 2,
+        "user": {
+            "id": 3,
+            "email": "rohit.joshi@jynk.com",
+            "password": "$2a$10$8dXEz4Kiw4CbBCSSJvZT4uob.AcstXdcE9XV7iiEjMGcizJvb8ete",
+            "role": "INTERN",
+            "name": "ROhit Joshi",
+            "createdAt": "2025-11-27T21:53:52",
+            "updatedAt": "2025-11-27T21:53:52"
+        },
+        "joiningDate": "2024-11-01",
+        "internshipDurationMonths": 6,
+        "stipendType": "MONTHLY",
+        "stipendAmount": 15000.0,
+        "managerEmail": "manager@example.com",
+        "panNumber": "87287821234F",
+        "aadhaarNumber": "12343936789012",
+        "bankAccountNumber": "123438890",
+        "bankIfscCode": "HDFC0001234",
+        "bankName": "HDFC Bank",
+        "bankBranch": "Mumbai Branch",
+        "address": "123 Main Street",
+        "city": "Mumbai",
+        "state": "Maharashtra",
+        "pincode": "400001",
+        "phoneNumber": "9876543210",
+        "signatureFilePath": null,
+        "createdAt": "2025-11-27T21:53:52",
+        "updatedAt": "2025-11-27T21:56:45",
+        "internshipEndDate": "2025-05-01"
+    },
+    "invoiceNumber": "001",
+    "invoiceDate": "2025-11-27",
+    "billingPeriodFrom": "2024-11-01",
+    "billingPeriodTill": "2024-11-30",
+    "totalWorkingDays": 21,
+    "paidLeaves": 0,
+    "unpaidLeaves": 0,
+    "stipendAmount": 15000.0,
+    "status": "Paid",
+    "remarks": "Payment Processed",
+    "createdAt": "2025-11-27T22:07:51",
+    "updatedAt": "2025-11-27T22:11:48.762173459"
+}
+```
 
 ---
 
 ### **Phase 10: Announcement Management (HR Actions)**
 
-#### 9.1 Create Announcement
+#### 10.1 Create Announcement
 **POST** `http://localhost:1234/api/announcements`
 
 **Headers:**
@@ -538,7 +922,7 @@ Content-Type: application/json
 
 **Expected Response:** Announcement object
 
-#### 9.2 Create Another Announcement
+#### 10.2 Create Another Announcement
 **POST** `http://localhost:1234/api/announcements`
 
 **Headers:**
@@ -558,7 +942,7 @@ Content-Type: application/json
 
 **Expected Response:** Announcement object
 
-#### 9.3 Get All Announcements (HR)
+#### 10.3 Get All Announcements (HR)
 **GET** `http://localhost:1234/api/announcements/all`
 
 **Headers:**
@@ -568,14 +952,14 @@ Authorization: Bearer <HR_TOKEN>
 
 **Expected Response:** Array of all announcement objects
 
-#### 9.4 Get Active Announcements (Public)
+#### 10.4 Get Active Announcements (Public)
 **GET** `http://localhost:1234/api/announcements/active`
 
 **Headers:** None
 
 **Expected Response:** Array of active announcement objects
 
-#### 9.5 Deactivate Announcement
+#### 10.5 Deactivate Announcement
 **PUT** `http://localhost:1234/api/announcements/1/deactivate`
 
 **Headers:**
@@ -592,7 +976,7 @@ Announcement deactivated
 
 ### **Phase 11: AI Features**
 
-#### 10.1 Policy Buddy Question (Intern 1)
+#### 11.1 Policy Buddy Question (Intern 1)
 **POST** `http://localhost:1234/api/ai/policy-buddy`
 
 **Headers:**
@@ -615,7 +999,7 @@ Content-Type: application/json
 }
 ```
 
-#### 10.2 Policy Buddy Question (Intern 1)
+#### 11.2 Policy Buddy Question (Intern 1)
 **POST** `http://localhost:1234/api/ai/policy-buddy`
 
 **Headers:**
@@ -638,7 +1022,7 @@ Content-Type: application/json
 }
 ```
 
-#### 10.3 HR Monthly Summary
+#### 11.3 HR Monthly Summary
 **GET** `http://localhost:1234/api/ai/hr-summary?month=1&year=2025`
 
 **Headers:**
@@ -652,7 +1036,7 @@ Authorization: Bearer <HR_TOKEN>
 
 ### **Phase 12: Additional Endpoints**
 
-#### 11.1 Get All Interns
+#### 12.1 Get All Interns
 **GET** `http://localhost:1234/api/interns/all`
 
 **Headers:**
@@ -746,7 +1130,10 @@ Content-Type: application/json
   "email": "intern@example.com",
   "password": "password123",
   "name": "John Doe",
-  "managerEmail": "manager@example.com"
+  "managerEmail": "manager@example.com",
+  "joiningDate": "2024-11-01",
+  "internshipDurationMonths": 6,
+  "stipendAmount": 15000.0
 }
 ```
 
@@ -764,12 +1151,56 @@ Intern onboarded successfully. Intern can now login and fill their details.
 - Email is required and must be unique
 - Password is required (minimum 6 characters)
 - Name is required
+- Joining date is required
+- Internship duration is required (must be 3 or 6 months)
+- Stipend amount is required (must be positive)
 - Manager email is optional
 
-**Note:** Interns will fill their own details (PAN, Aadhaar, bank details, joining date, stipend, etc.) after logging in using the `/api/interns/my-details` endpoint.
+**Note:** HR sets joining date, internship duration, and stipend amount during onboarding. Stipend type is automatically set to MONTHLY. Interns will fill their own personal details (PAN, Aadhaar, bank details, address, etc.) after logging in using the `/api/interns/my-details` endpoint.
+
+#### GET `/api/interns/my-details`
+Get intern's own details. **Intern Only** - Requires Intern JWT token.
+
+**Headers:** 
+```
+Authorization: Bearer <intern-jwt-token>
+```
+
+**Success Response (200):**
+```json
+{
+  "id": 1,
+  "user": {
+    "id": 2,
+    "email": "intern@example.com",
+    "name": "John Doe",
+    "role": "INTERN"
+  },
+  "joiningDate": "2024-11-01",
+  "internshipDurationMonths": 6,
+  "stipendType": "MONTHLY",
+  "stipendAmount": 15000.0,
+  "managerEmail": "manager@example.com",
+  "panNumber": "ABCDE1234F",
+  "aadhaarNumber": "123456789012",
+  "bankAccountNumber": "1234567890",
+  "bankIfscCode": "BANK0001234",
+  "bankName": "Bank Name",
+  "bankBranch": "Branch Name",
+  "address": "123 Street",
+  "city": "City",
+  "state": "State",
+  "pincode": "123456",
+  "phoneNumber": "9876543210"
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request ("Intern details not found")
+- `401` - Unauthorized (Invalid or missing JWT token)
 
 #### PUT `/api/interns/my-details`
-Update intern's own details. **Intern Only** - Requires Intern JWT token.
+Update intern's own personal details. **Intern Only** - Requires Intern JWT token.
 
 **Headers:** 
 ```
@@ -780,10 +1211,6 @@ Content-Type: application/json
 **Request Body (all fields optional):**
 ```json
 {
-  "joiningDate": "2025-05-01",
-  "internshipDurationMonths": 6,
-  "stipendType": "MONTHLY",
-  "stipendAmount": 15000.0,
   "panNumber": "ABCDE1234F",
   "aadhaarNumber": "123456789012",
   "bankAccountNumber": "1234567890",
@@ -812,6 +1239,7 @@ Intern details updated successfully
 - Aadhaar number must be unique across all interns
 - Bank account number must be unique across all interns (if provided)
 - All fields are optional - only include fields you want to update
+- **Note:** Interns cannot update joining date, internship duration, stipend amount, or stipend type. These are set by HR during onboarding.
 
 #### PUT `/api/interns/{internId}`
 Update intern details. **HR Only** - Requires HR JWT token.
@@ -1078,8 +1506,11 @@ All endpoints return standard error format:
    - System automatically determines PAID vs UNPAID based on balance
 
 4. **Stipend Calculation:**
-   - Monthly: Deducts only unpaid leaves proportionally
-   - Daily: Deducts unpaid leave days from total payable days
+   - Monthly stipend: Calculates per-day rate (monthly stipend / total working days in month)
+   - Deducts unpaid leaves: Amount deducted = (unpaid leaves × per-day rate)
+   - Final amount = Monthly stipend - (unpaid leaves × per-day rate)
+   - Only approved unpaid leaves are considered for deduction
+   - Paid leaves do not affect the stipend amount
 
 5. **Working Days:** Calculated excluding weekends (Saturday & Sunday).
 
@@ -1100,9 +1531,12 @@ All endpoints return standard error format:
    - HR cannot login via intern endpoint and vice versa
 
 9. **Intern Onboarding Workflow:**
-   - HR creates intern with minimal info: email, password, name, optional manager email
-   - Intern logs in and fills their own details (PAN, Aadhaar, bank details, joining date, stipend, etc.)
-   - HR can edit any intern's details at any time
+   - HR creates intern with: email, password, name, joining date, internship duration, stipend amount, and optional manager email
+   - Stipend type is automatically set to MONTHLY
+   - Intern logs in and fills their own personal details (PAN, Aadhaar, bank details, address, etc.)
+   - Interns can view their complete details including HR-set fields (joining date, duration, stipend) via GET `/api/interns/my-details`
+   - Interns can only update personal details (PAN, Aadhaar, bank, address) via PUT `/api/interns/my-details`
+   - HR can edit any intern's details at any time via PUT `/api/interns/{internId}`
    - All personal details (PAN, Aadhaar, bank account) must be unique across all interns
 
 ---
@@ -1132,8 +1566,17 @@ curl -X POST http://localhost:1234/api/interns/onboard \
     "email": "new.intern@example.com",
     "password": "password123",
     "name": "New Intern",
-    "managerEmail": "manager@example.com"
+    "managerEmail": "manager@example.com",
+    "joiningDate": "2024-11-01",
+    "internshipDurationMonths": 6,
+    "stipendAmount": 15000.0
   }'
+```
+
+### Get My Details (Intern)
+```bash
+curl -X GET http://localhost:1234/api/interns/my-details \
+  -H "Authorization: Bearer YOUR_INTERN_TOKEN_HERE"
 ```
 
 ### Update Intern Details (Intern)
@@ -1142,10 +1585,6 @@ curl -X PUT http://localhost:1234/api/interns/my-details \
   -H "Authorization: Bearer YOUR_INTERN_TOKEN_HERE" \
   -H "Content-Type: application/json" \
   -d '{
-    "joiningDate": "2025-01-01",
-    "internshipDurationMonths": 6,
-    "stipendType": "MONTHLY",
-    "stipendAmount": 15000.0,
     "panNumber": "NEWPA1234N",
     "aadhaarNumber": "111122223333",
     "bankAccountNumber": "1111222233",

@@ -47,10 +47,14 @@ public class InternController {
                 User.UserRole.INTERN
             );
             
-            // Create intern details with minimal information
+            // Create intern details with HR-provided information
             InternDetails internDetails = new InternDetails();
             internDetails.setUser(user);
             internDetails.setManagerEmail(request.getManagerEmail()); // Optional
+            internDetails.setJoiningDate(request.getJoiningDate());
+            internDetails.setInternshipDurationMonths(request.getInternshipDurationMonths());
+            internDetails.setStipendAmount(request.getStipendAmount());
+            internDetails.setStipendType(InternDetails.StipendType.MONTHLY); // Default to MONTHLY
             
             internDetailsRepository.save(internDetails);
             
@@ -96,19 +100,7 @@ public class InternController {
                 }
             }
             
-            // Update fields if provided
-            if (request.getJoiningDate() != null) {
-                internDetails.setJoiningDate(request.getJoiningDate());
-            }
-            if (request.getInternshipDurationMonths() != null) {
-                internDetails.setInternshipDurationMonths(request.getInternshipDurationMonths());
-            }
-            if (request.getStipendType() != null) {
-                internDetails.setStipendType(request.getStipendType());
-            }
-            if (request.getStipendAmount() != null) {
-                internDetails.setStipendAmount(request.getStipendAmount());
-            }
+            // Update fields if provided (only personal details, not joining date, duration, or stipend)
             if (request.getPanNumber() != null) {
                 internDetails.setPanNumber(request.getPanNumber());
             }
@@ -254,6 +246,23 @@ public class InternController {
             internDetailsRepository.save(internDetails);
             
             return ResponseEntity.ok("Intern details updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    @GetMapping("/my-details")
+    public ResponseEntity<?> getMyDetails(
+            @RequestHeader("Authorization") String token) {
+        try {
+            Long userId = jwtService.extractUserId(token.replace("Bearer ", ""));
+            Optional<InternDetails> internDetailsOpt = internDetailsRepository.findByUserId(userId);
+            
+            if (internDetailsOpt.isEmpty()) {
+                return ResponseEntity.badRequest().body("Intern details not found");
+            }
+            
+            return ResponseEntity.ok(internDetailsOpt.get());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
