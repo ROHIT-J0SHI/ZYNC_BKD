@@ -63,6 +63,10 @@ public class InternDetails {
     // Signature file path (stored on server)
     private String signatureFilePath;
     
+    // Status
+    @Column(nullable = false)
+    private Boolean active = true; // Default to true for new interns
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
@@ -70,6 +74,9 @@ public class InternDetails {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (active == null) {
+            active = true; // Default to active for new interns
+        }
     }
     
     @PreUpdate
@@ -83,6 +90,9 @@ public class InternDetails {
     
     // Helper method to calculate internship end date
     public LocalDate getInternshipEndDate() {
+        if (joiningDate == null || internshipDurationMonths == null) {
+            return null;
+        }
         return joiningDate.plusMonths(internshipDurationMonths);
     }
 }

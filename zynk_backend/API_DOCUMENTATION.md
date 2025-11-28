@@ -1635,4 +1635,293 @@ curl -X POST http://localhost:1234/api/leaves/request \
 
 ---
 
+### 8. Separation / Internship Exit Endpoints
+
+#### POST `/api/separations/request`
+Create a separation request (request to leave internship early). **Intern Only** - Requires Intern JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <intern-jwt-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "requestedSeparationDate": "2025-03-15",
+  "reason": "Found a better opportunity that aligns with my career goals"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "id": 1,
+  "internId": 2,
+  "internName": "John Doe",
+  "internEmail": "john.doe@example.com",
+  "requestedSeparationDate": "2025-03-15",
+  "reason": "Found a better opportunity that aligns with my career goals",
+  "status": "PENDING",
+  "approvedBy": null,
+  "approvedAt": null,
+  "hrRemarks": null,
+  "createdAt": "2025-01-15T10:30:00",
+  "updatedAt": "2025-01-15T10:30:00"
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request (e.g., "A pending separation request already exists", "Requested separation date cannot be in the past", "Requested separation date cannot be before joining date", "Requested separation date cannot be after internship end date")
+- `403` - Forbidden ("Only interns can create separation requests")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Validation Rules:**
+- `requestedSeparationDate` is required and must be:
+  - On or after today's date
+  - On or after the intern's joining date
+  - On or before the internship end date (if applicable)
+- `reason` is required and must be between 10 and 1000 characters
+- An intern cannot have multiple PENDING separation requests at the same time
+
+**Note:** When a separation request is created, it starts with status PENDING and awaits HR approval.
+
+---
+
+#### GET `/api/separations/my-requests`
+Get all separation requests for the logged-in intern. **Intern Only** - Requires Intern JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <intern-jwt-token>
+```
+
+**Success Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "internId": 2,
+    "internName": "John Doe",
+    "internEmail": "john.doe@example.com",
+    "requestedSeparationDate": "2025-03-15",
+    "reason": "Found a better opportunity that aligns with my career goals",
+    "status": "PENDING",
+    "approvedBy": null,
+    "approvedAt": null,
+    "hrRemarks": null,
+    "createdAt": "2025-01-15T10:30:00",
+    "updatedAt": "2025-01-15T10:30:00"
+  },
+  {
+    "id": 2,
+    "internId": 2,
+    "internName": "John Doe",
+    "internEmail": "john.doe@example.com",
+    "requestedSeparationDate": "2025-02-10",
+    "reason": "Personal reasons",
+    "status": "APPROVED",
+    "approvedBy": "HR Manager",
+    "approvedAt": "2025-01-16T14:20:00",
+    "hrRemarks": "Approved as per policy",
+    "createdAt": "2025-01-10T09:15:00",
+    "updatedAt": "2025-01-16T14:20:00"
+  }
+]
+```
+
+**Error Responses:**
+- `403` - Forbidden ("Only interns can view their separation requests")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+---
+
+#### GET `/api/separations/all`
+Get all separation requests. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+```
+
+**Success Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "internId": 2,
+    "internName": "John Doe",
+    "internEmail": "john.doe@example.com",
+    "requestedSeparationDate": "2025-03-15",
+    "reason": "Found a better opportunity that aligns with my career goals",
+    "status": "PENDING",
+    "approvedBy": null,
+    "approvedAt": null,
+    "hrRemarks": null,
+    "createdAt": "2025-01-15T10:30:00",
+    "updatedAt": "2025-01-15T10:30:00"
+  },
+  {
+    "id": 2,
+    "internId": 3,
+    "internName": "Jane Smith",
+    "internEmail": "jane.smith@example.com",
+    "requestedSeparationDate": "2025-02-20",
+    "reason": "Personal family commitments",
+    "status": "APPROVED",
+    "approvedBy": "HR Manager",
+    "approvedAt": "2025-01-16T14:20:00",
+    "hrRemarks": "Approved",
+    "createdAt": "2025-01-12T11:00:00",
+    "updatedAt": "2025-01-16T14:20:00"
+  }
+]
+```
+
+**Error Responses:**
+- `403` - Forbidden ("Only HR can view all separation requests")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+---
+
+#### GET `/api/separations/pending`
+Get all pending separation requests. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+```
+
+**Success Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "internId": 2,
+    "internName": "John Doe",
+    "internEmail": "john.doe@example.com",
+    "requestedSeparationDate": "2025-03-15",
+    "reason": "Found a better opportunity that aligns with my career goals",
+    "status": "PENDING",
+    "approvedBy": null,
+    "approvedAt": null,
+    "hrRemarks": null,
+    "createdAt": "2025-01-15T10:30:00",
+    "updatedAt": "2025-01-15T10:30:00"
+  }
+]
+```
+
+**Error Responses:**
+- `403` - Forbidden ("Only HR can view pending separation requests")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+---
+
+#### PUT `/api/separations/{requestId}/approve`
+Approve a separation request. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+```
+
+**Query Parameters:**
+- `approvedBy`: (required) Name of the HR who is approving the request
+
+**Example:**
+```
+PUT /api/separations/1/approve?approvedBy=HR Manager
+```
+
+**Success Response (200):**
+```json
+{
+  "id": 1,
+  "internId": 2,
+  "internName": "John Doe",
+  "internEmail": "john.doe@example.com",
+  "requestedSeparationDate": "2025-03-15",
+  "reason": "Found a better opportunity that aligns with my career goals",
+  "status": "APPROVED",
+  "approvedBy": "HR Manager",
+  "approvedAt": "2025-01-16T14:20:00",
+  "hrRemarks": null,
+  "createdAt": "2025-01-15T10:30:00",
+  "updatedAt": "2025-01-16T14:20:00"
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request (e.g., "Separation request not found", "Separation request has already been processed")
+- `403` - Forbidden ("Only HR can approve separation requests")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Important Notes:**
+- When a separation request is approved:
+  - The intern's `active` status is set to `false`
+  - The intern's internship duration is updated to reflect the requested separation date
+  - The request status is changed to APPROVED
+  - Once approved, the request cannot be changed again (idempotent operation)
+
+---
+
+#### PUT `/api/separations/{requestId}/reject`
+Reject a separation request. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+```
+
+**Query Parameters:**
+- `approvedBy`: (optional) Name of the HR who is rejecting the request. If not provided, it will use the HR's name from the JWT token.
+- `hrRemarks`: (optional) Comments or remarks from HR about the rejection
+
+**Example:**
+```
+PUT /api/separations/1/reject?approvedBy=HR Manager&hrRemarks=Request does not meet company policy
+```
+
+**Success Response (200):**
+```json
+{
+  "id": 1,
+  "internId": 2,
+  "internName": "John Doe",
+  "internEmail": "john.doe@example.com",
+  "requestedSeparationDate": "2025-03-15",
+  "reason": "Found a better opportunity that aligns with my career goals",
+  "status": "REJECTED",
+  "approvedBy": "HR Manager",
+  "approvedAt": "2025-01-16T14:20:00",
+  "hrRemarks": "Request does not meet company policy",
+  "createdAt": "2025-01-15T10:30:00",
+  "updatedAt": "2025-01-16T14:20:00"
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request (e.g., "Separation request not found", "Separation request has already been processed")
+- `403` - Forbidden ("Only HR can reject separation requests")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Important Notes:**
+- When a separation request is rejected:
+  - The request status is changed to REJECTED
+  - The intern remains active (no changes to intern status)
+  - Once rejected, the request cannot be changed again (idempotent operation)
+  - HR can optionally provide remarks explaining the rejection
+
+---
+
+### Separation Request Status Values
+
+- **PENDING**: Request has been submitted and is awaiting HR review
+- **APPROVED**: Request has been approved by HR. Intern is marked as inactive and internship end date is updated.
+- **REJECTED**: Request has been rejected by HR. Intern remains active.
+
+---
+
 **Happy Coding! 🚀**

@@ -7,6 +7,7 @@ CREATE DATABASE IF NOT EXISTS internflow;
 USE internflow;
 
 -- Drop tables if they exist (in reverse order of dependencies)
+DROP TABLE IF EXISTS separation_requests;
 DROP TABLE IF EXISTS leaves;
 DROP TABLE IF EXISTS invoices;
 DROP TABLE IF EXISTS announcements;
@@ -47,6 +48,7 @@ CREATE TABLE intern_details (
     pincode VARCHAR(255),
     phone_number VARCHAR(255),
     signature_file_path VARCHAR(255),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -110,6 +112,24 @@ CREATE TABLE announcements (
     INDEX idx_created_by (created_by),
     INDEX idx_expiry_date (expiry_date),
     INDEX idx_is_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: separation_requests
+CREATE TABLE separation_requests (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    intern_id BIGINT NOT NULL,
+    requested_separation_date DATE NOT NULL,
+    reason VARCHAR(1000) NOT NULL,
+    status ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
+    approved_by VARCHAR(255),
+    approved_at TIMESTAMP NULL,
+    hr_remarks VARCHAR(1000),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (intern_id) REFERENCES intern_details(id) ON DELETE CASCADE,
+    INDEX idx_intern_id (intern_id),
+    INDEX idx_status (status),
+    INDEX idx_requested_separation_date (requested_separation_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Show tables created
