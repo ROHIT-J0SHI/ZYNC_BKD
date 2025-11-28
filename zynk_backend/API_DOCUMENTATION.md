@@ -974,7 +974,264 @@ Announcement deactivated
 
 ---
 
-### **Phase 11: AI Features**
+### **Phase 11: Training Management (HR Actions)**
+
+#### 11.1 Create Training
+**POST** `http://localhost:1234/api/trainings`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "title": "Spring Boot Fundamentals",
+  "description": "Learn the basics of Spring Boot framework",
+  "link": "https://example.com/training/spring-boot"
+}
+```
+
+**Expected Response:**
+```json
+{
+  "id": 1,
+  "title": "Spring Boot Fundamentals",
+  "description": "Learn the basics of Spring Boot framework",
+  "link": "https://example.com/training/spring-boot",
+  "createdAt": "2025-01-15T10:30:00",
+  "updatedAt": "2025-01-15T10:30:00"
+}
+```
+
+#### 11.2 Create Another Training
+**POST** `http://localhost:1234/api/trainings`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "title": "Database Design Best Practices",
+  "description": "Learn how to design efficient database schemas",
+  "link": "https://example.com/training/database-design"
+}
+```
+
+**Expected Response:** Training object
+
+#### 11.3 Get All Trainings (HR)
+**GET** `http://localhost:1234/api/trainings/all`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+```
+
+**Expected Response:** Array of training objects
+```json
+[
+  {
+    "id": 1,
+    "title": "Spring Boot Fundamentals",
+    "description": "Learn the basics of Spring Boot framework",
+    "link": "https://example.com/training/spring-boot",
+    "createdAt": "2025-01-15T10:30:00",
+    "updatedAt": "2025-01-15T10:30:00"
+  },
+  {
+    "id": 2,
+    "title": "Database Design Best Practices",
+    "description": "Learn how to design efficient database schemas",
+    "link": "https://example.com/training/database-design",
+    "createdAt": "2025-01-15T11:00:00",
+    "updatedAt": "2025-01-15T11:00:00"
+  }
+]
+```
+
+#### 11.4 Get Training by ID
+**GET** `http://localhost:1234/api/trainings/1`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+```
+
+**Expected Response:** Training object
+
+#### 11.5 Update Training
+**PUT** `http://localhost:1234/api/trainings/1`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+Content-Type: application/json
+```
+
+**Request Body (all fields optional):**
+```json
+{
+  "title": "Spring Boot Fundamentals - Updated",
+  "description": "Updated description",
+  "link": "https://example.com/training/spring-boot-v2"
+}
+```
+
+**Expected Response:** Updated training object
+
+#### 11.6 Assign Training to Intern
+**POST** `http://localhost:1234/api/trainings/assign`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "trainingId": 1,
+  "internId": 1
+}
+```
+
+**Expected Response:**
+```json
+{
+  "assignmentId": 1,
+  "trainingId": 1,
+  "title": "Spring Boot Fundamentals",
+  "description": "Learn the basics of Spring Boot framework",
+  "link": "https://example.com/training/spring-boot",
+  "internId": 1,
+  "internName": "John Doe",
+  "internEmail": "john.doe@example.com",
+  "assignedAt": "2025-01-15T12:00:00",
+  "completed": false,
+  "completedAt": null
+}
+```
+
+#### 11.7 Bulk Assign Training to Multiple Interns
+**POST** `http://localhost:1234/api/trainings/assign/bulk`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "trainingId": 1,
+  "internIds": [1, 2]
+}
+```
+
+**Expected Response:** Array of assignment objects
+
+#### 11.8 Get All Assignments (HR)
+**GET** `http://localhost:1234/api/trainings/assignments/all`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+```
+
+**Expected Response:** Array of assignment objects
+```json
+[
+  {
+    "assignmentId": 1,
+    "trainingId": 1,
+    "title": "Spring Boot Fundamentals",
+    "description": "Learn the basics of Spring Boot framework",
+    "link": "https://example.com/training/spring-boot",
+    "internId": 1,
+    "internName": "John Doe",
+    "internEmail": "john.doe@example.com",
+    "assignedAt": "2025-01-15T12:00:00",
+    "completed": false,
+    "completedAt": null
+  },
+  {
+    "assignmentId": 2,
+    "trainingId": 1,
+    "title": "Spring Boot Fundamentals",
+    "description": "Learn the basics of Spring Boot framework",
+    "link": "https://example.com/training/spring-boot",
+    "internId": 2,
+    "internName": "Jane Smith",
+    "internEmail": "jane.smith@example.com",
+    "assignedAt": "2025-01-15T12:05:00",
+    "completed": false,
+    "completedAt": null
+  }
+]
+```
+
+#### 11.9 Delete Training
+**DELETE** `http://localhost:1234/api/trainings/2`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+```
+
+**Expected Response:**
+```json
+{
+  "message": "Training deleted successfully"
+}
+```
+
+**Note:** Training cannot be deleted if it has been assigned to any intern.
+
+---
+
+### **Phase 12: Training Management (Intern Actions)**
+
+#### 12.1 Get My Assigned Trainings (Intern 1)
+**GET** `http://localhost:1234/api/trainings/my-assignments`
+
+**Headers:**
+```
+Authorization: Bearer <INTERN1_TOKEN>
+```
+
+**Expected Response:** Array of assigned training objects
+```json
+[
+  {
+    "assignmentId": 1,
+    "trainingId": 1,
+    "title": "Spring Boot Fundamentals",
+    "description": "Learn the basics of Spring Boot framework",
+    "link": "https://example.com/training/spring-boot",
+    "internId": 1,
+    "internName": "John Doe",
+    "internEmail": "john.doe@example.com",
+    "assignedAt": "2025-01-15T12:00:00",
+    "completed": false,
+    "completedAt": null
+  }
+]
+```
+
+**Note:** Interns can only see trainings assigned to them. They cannot see trainings assigned to other interns.
+
+---
+
+### **Phase 13: AI Features**
 
 #### 11.1 Policy Buddy Question (Intern 1)
 **POST** `http://localhost:1234/api/ai/policy-buddy`
@@ -1034,7 +1291,7 @@ Authorization: Bearer <HR_TOKEN>
 
 ---
 
-### **Phase 12: Additional Endpoints**
+### **Phase 14: Additional Endpoints**
 
 #### 12.1 Get All Interns
 **GET** `http://localhost:1234/api/interns/all`
@@ -1430,7 +1687,349 @@ Deactivate an announcement (HR only).
 
 ---
 
-### 6. AI Endpoints
+### 6. Training Management Endpoints
+
+#### POST `/api/trainings`
+Create a training material. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "title": "Spring Boot Fundamentals",
+  "description": "Learn the basics of Spring Boot framework",
+  "link": "https://example.com/training/spring-boot"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "id": 1,
+  "title": "Spring Boot Fundamentals",
+  "description": "Learn the basics of Spring Boot framework",
+  "link": "https://example.com/training/spring-boot",
+  "createdAt": "2025-01-15T10:30:00",
+  "updatedAt": "2025-01-15T10:30:00"
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request (e.g., "Title is required", "Link is required")
+- `403` - Forbidden ("Only HR can create trainings")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Validation Rules:**
+- `title` is required and cannot be blank
+- `link` is required and cannot be blank
+- `description` is optional
+
+---
+
+#### PUT `/api/trainings/{trainingId}`
+Update a training material. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+Content-Type: application/json
+```
+
+**Request Body (all fields optional):**
+```json
+{
+  "title": "Spring Boot Fundamentals - Updated",
+  "description": "Updated description",
+  "link": "https://example.com/training/spring-boot-v2"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "id": 1,
+  "title": "Spring Boot Fundamentals - Updated",
+  "description": "Updated description",
+  "link": "https://example.com/training/spring-boot-v2",
+  "createdAt": "2025-01-15T10:30:00",
+  "updatedAt": "2025-01-15T11:00:00"
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request (e.g., "Training not found")
+- `403` - Forbidden ("Only HR can update trainings")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Note:** All fields are optional - only include fields you want to update.
+
+---
+
+#### DELETE `/api/trainings/{trainingId}`
+Delete a training material. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+```
+
+**Success Response (200):**
+```json
+{
+  "message": "Training deleted successfully"
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request (e.g., "Training not found", "Cannot delete training that has been assigned to interns")
+- `403` - Forbidden ("Only HR can delete trainings")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Important Notes:**
+- Training cannot be deleted if it has been assigned to any intern
+- Only trainings with no assignments can be deleted
+
+---
+
+#### GET `/api/trainings/all`
+Get all training materials. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+```
+
+**Success Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "title": "Spring Boot Fundamentals",
+    "description": "Learn the basics of Spring Boot framework",
+    "link": "https://example.com/training/spring-boot",
+    "createdAt": "2025-01-15T10:30:00",
+    "updatedAt": "2025-01-15T10:30:00"
+  }
+]
+```
+
+**Error Responses:**
+- `403` - Forbidden ("Only HR can view all trainings")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+---
+
+#### GET `/api/trainings/{trainingId}`
+Get a training material by ID. **Authenticated** - Requires JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <jwt-token>
+```
+
+**Success Response (200):**
+```json
+{
+  "id": 1,
+  "title": "Spring Boot Fundamentals",
+  "description": "Learn the basics of Spring Boot framework",
+  "link": "https://example.com/training/spring-boot",
+  "createdAt": "2025-01-15T10:30:00",
+  "updatedAt": "2025-01-15T10:30:00"
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request ("Training not found")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+---
+
+#### POST `/api/trainings/assign`
+Assign a training to an intern. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "trainingId": 1,
+  "internId": 1
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "assignmentId": 1,
+  "trainingId": 1,
+  "title": "Spring Boot Fundamentals",
+  "description": "Learn the basics of Spring Boot framework",
+  "link": "https://example.com/training/spring-boot",
+  "internId": 1,
+  "internName": "John Doe",
+  "internEmail": "john.doe@example.com",
+  "assignedAt": "2025-01-15T12:00:00",
+  "completed": false,
+  "completedAt": null
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request (e.g., "Training not found", "Intern not found", "Training already assigned to this intern")
+- `403` - Forbidden ("Only HR can assign trainings")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Validation Rules:**
+- `trainingId` is required
+- `internId` is required
+- A training cannot be assigned to the same intern twice (duplicate assignments are prevented)
+
+---
+
+#### POST `/api/trainings/assign/bulk`
+Assign a training to multiple interns at once. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "trainingId": 1,
+  "internIds": [1, 2, 3]
+}
+```
+
+**Success Response (200):**
+```json
+[
+  {
+    "assignmentId": 1,
+    "trainingId": 1,
+    "title": "Spring Boot Fundamentals",
+    "description": "Learn the basics of Spring Boot framework",
+    "link": "https://example.com/training/spring-boot",
+    "internId": 1,
+    "internName": "John Doe",
+    "internEmail": "john.doe@example.com",
+    "assignedAt": "2025-01-15T12:00:00",
+    "completed": false,
+    "completedAt": null
+  },
+  {
+    "assignmentId": 2,
+    "trainingId": 1,
+    "title": "Spring Boot Fundamentals",
+    "description": "Learn the basics of Spring Boot framework",
+    "link": "https://example.com/training/spring-boot",
+    "internId": 2,
+    "internName": "Jane Smith",
+    "internEmail": "jane.smith@example.com",
+    "assignedAt": "2025-01-15T12:00:00",
+    "completed": false,
+    "completedAt": null
+  }
+]
+```
+
+**Error Responses:**
+- `400` - Bad Request (e.g., "Training not found", "Intern not found")
+- `403` - Forbidden ("Only HR can assign trainings")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Validation Rules:**
+- `trainingId` is required
+- `internIds` is required and must contain at least one intern ID
+- If a training is already assigned to an intern, that assignment is skipped (no error)
+
+---
+
+#### GET `/api/trainings/assignments/all`
+Get all training assignments. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+```
+
+**Success Response (200):**
+```json
+[
+  {
+    "assignmentId": 1,
+    "trainingId": 1,
+    "title": "Spring Boot Fundamentals",
+    "description": "Learn the basics of Spring Boot framework",
+    "link": "https://example.com/training/spring-boot",
+    "internId": 1,
+    "internName": "John Doe",
+    "internEmail": "john.doe@example.com",
+    "assignedAt": "2025-01-15T12:00:00",
+    "completed": false,
+    "completedAt": null
+  }
+]
+```
+
+**Error Responses:**
+- `403` - Forbidden ("Only HR can view all assignments")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+---
+
+#### GET `/api/trainings/my-assignments`
+Get all training assignments for the logged-in intern. **Intern Only** - Requires Intern JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <intern-jwt-token>
+```
+
+**Success Response (200):**
+```json
+[
+  {
+    "assignmentId": 1,
+    "trainingId": 1,
+    "title": "Spring Boot Fundamentals",
+    "description": "Learn the basics of Spring Boot framework",
+    "link": "https://example.com/training/spring-boot",
+    "internId": 1,
+    "internName": "John Doe",
+    "internEmail": "john.doe@example.com",
+    "assignedAt": "2025-01-15T12:00:00",
+    "completed": false,
+    "completedAt": null
+  }
+]
+```
+
+**Error Responses:**
+- `403` - Forbidden ("Only interns can view their assignments")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Important Notes:**
+- Interns can only see trainings assigned to them
+- Interns cannot see trainings assigned to other interns
+- Interns cannot create, update, or delete training materials
+- Interns cannot assign trainings to themselves or others
+
+---
+
+### 7. AI Endpoints
 
 #### POST `/api/ai/policy-buddy`
 Ask policy questions (logged-in intern).
@@ -1464,7 +2063,7 @@ Get AI-generated monthly summary (HR only).
 
 ---
 
-### 7. Test Endpoints
+### 8. Test Endpoints
 
 #### GET `/api/hello`
 Test endpoint to verify API is running.
@@ -1538,6 +2137,15 @@ All endpoints return standard error format:
    - Interns can only update personal details (PAN, Aadhaar, bank, address) via PUT `/api/interns/my-details`
    - HR can edit any intern's details at any time via PUT `/api/interns/{internId}`
    - All personal details (PAN, Aadhaar, bank account) must be unique across all interns
+
+10. **Training Module:**
+    - HR can create, update, and delete training materials
+    - HR can assign trainings to one or multiple interns
+    - Interns can only view trainings assigned to them
+    - Interns cannot create, update, delete, or assign trainings
+    - A training cannot be deleted if it has been assigned to any intern
+    - Duplicate assignments (same training to same intern) are prevented
+    - Training materials include: title (required), description (optional), and link (required)
 
 ---
 
@@ -1633,9 +2241,44 @@ curl -X POST http://localhost:1234/api/leaves/request \
   -d '{"leaveDate":"2025-01-20","reason":"Personal work"}'
 ```
 
+### Create Training (HR only)
+```bash
+curl -X POST http://localhost:1234/api/trainings \
+  -H "Authorization: Bearer YOUR_HR_TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Spring Boot Fundamentals",
+    "description": "Learn the basics of Spring Boot framework",
+    "link": "https://example.com/training/spring-boot"
+  }'
+```
+
+### Assign Training to Intern (HR only)
+```bash
+curl -X POST http://localhost:1234/api/trainings/assign \
+  -H "Authorization: Bearer YOUR_HR_TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "trainingId": 1,
+    "internId": 1
+  }'
+```
+
+### Get My Assigned Trainings (Intern)
+```bash
+curl -X GET http://localhost:1234/api/trainings/my-assignments \
+  -H "Authorization: Bearer YOUR_INTERN_TOKEN_HERE"
+```
+
+### Get All Trainings (HR only)
+```bash
+curl -X GET http://localhost:1234/api/trainings/all \
+  -H "Authorization: Bearer YOUR_HR_TOKEN_HERE"
+```
+
 ---
 
-### 8. Separation / Internship Exit Endpoints
+### 9. Separation / Internship Exit Endpoints
 
 #### POST `/api/separations/request`
 Create a separation request (request to leave internship early). **Intern Only** - Requires Intern JWT token.

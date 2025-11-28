@@ -7,6 +7,8 @@ CREATE DATABASE IF NOT EXISTS internflow;
 USE internflow;
 
 -- Drop tables if they exist (in reverse order of dependencies)
+DROP TABLE IF EXISTS training_assignment;
+DROP TABLE IF EXISTS training;
 DROP TABLE IF EXISTS separation_requests;
 DROP TABLE IF EXISTS leaves;
 DROP TABLE IF EXISTS invoices;
@@ -130,6 +132,36 @@ CREATE TABLE separation_requests (
     INDEX idx_intern_id (intern_id),
     INDEX idx_status (status),
     INDEX idx_requested_separation_date (requested_separation_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: training
+CREATE TABLE training (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    link VARCHAR(500) NOT NULL,
+    created_by BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_created_by (created_by),
+    INDEX idx_title (title)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Table: training_assignment
+CREATE TABLE training_assignment (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    training_id BIGINT NOT NULL,
+    intern_id BIGINT NOT NULL,
+    assigned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed BOOLEAN NOT NULL DEFAULT FALSE,
+    completed_at TIMESTAMP NULL,
+    FOREIGN KEY (training_id) REFERENCES training(id) ON DELETE CASCADE,
+    FOREIGN KEY (intern_id) REFERENCES intern_details(id) ON DELETE CASCADE,
+    INDEX idx_training_id (training_id),
+    INDEX idx_intern_id (intern_id),
+    INDEX idx_completed (completed),
+    UNIQUE KEY unique_training_intern (training_id, intern_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Show tables created
