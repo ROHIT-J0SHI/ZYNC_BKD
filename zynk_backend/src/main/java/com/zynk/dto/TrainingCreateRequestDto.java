@@ -14,3 +14,4 @@ public class TrainingCreateRequestDto {
     private String link;
 }
 
+

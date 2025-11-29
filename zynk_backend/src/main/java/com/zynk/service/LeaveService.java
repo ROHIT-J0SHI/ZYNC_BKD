@@ -3,6 +3,7 @@ package com.zynk.service;
 import com.zynk.dto.LeaveBalanceResponse;
 import com.zynk.dto.LeaveRequest;
 import com.zynk.dto.LeaveResponse;
+import com.zynk.dto.LeaveTotalResponse;
 import com.zynk.entity.InternDetails;
 import com.zynk.entity.Leave;
 import com.zynk.entity.User;
@@ -97,6 +98,42 @@ public class LeaveService {
             .collect(Collectors.toList());
     }
     
+    public List<LeaveResponse> getAllApprovedLeaves() {
+        List<Leave> leaves = leaveRepository.findAll().stream()
+            .filter(leave -> leave.getStatus() == Leave.LeaveStatus.APPROVED)
+            .collect(Collectors.toList());
+        return leaves.stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+    }
+    
+    public List<LeaveResponse> getAllRejectedLeaves() {
+        List<Leave> leaves = leaveRepository.findAll().stream()
+            .filter(leave -> leave.getStatus() == Leave.LeaveStatus.REJECTED)
+            .collect(Collectors.toList());
+        return leaves.stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+    }
+    
+    public List<LeaveResponse> getAllPaidLeaves() {
+        List<Leave> leaves = leaveRepository.findAll().stream()
+            .filter(leave -> leave.getLeaveType() == Leave.LeaveType.PAID)
+            .collect(Collectors.toList());
+        return leaves.stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+    }
+    
+    public List<LeaveResponse> getAllUnpaidLeaves() {
+        List<Leave> leaves = leaveRepository.findAll().stream()
+            .filter(leave -> leave.getLeaveType() == Leave.LeaveType.UNPAID)
+            .collect(Collectors.toList());
+        return leaves.stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+    }
+    
     public LeaveBalanceResponse getLeaveBalance(Long internId) {
         InternDetails intern = internDetailsRepository.findById(internId)
             .orElseThrow(() -> new RuntimeException("Intern not found"));
@@ -111,6 +148,36 @@ public class LeaveService {
         int unpaid = LeaveBalanceCalculator.countUnpaidLeaves(approvedLeaves);
         
         return new LeaveBalanceResponse(used, remaining, unpaid, totalEarned);
+    }
+    
+    public LeaveTotalResponse getTotalLeaves() {
+        List<Leave> allLeaves = leaveRepository.findAll();
+        
+        long totalLeaves = allLeaves.size();
+        long pendingLeaves = allLeaves.stream()
+            .filter(leave -> leave.getStatus() == Leave.LeaveStatus.PENDING)
+            .count();
+        long approvedLeaves = allLeaves.stream()
+            .filter(leave -> leave.getStatus() == Leave.LeaveStatus.APPROVED)
+            .count();
+        long rejectedLeaves = allLeaves.stream()
+            .filter(leave -> leave.getStatus() == Leave.LeaveStatus.REJECTED)
+            .count();
+        long paidLeaves = allLeaves.stream()
+            .filter(leave -> leave.getLeaveType() == Leave.LeaveType.PAID)
+            .count();
+        long unpaidLeaves = allLeaves.stream()
+            .filter(leave -> leave.getLeaveType() == Leave.LeaveType.UNPAID)
+            .count();
+        
+        return new LeaveTotalResponse(
+            totalLeaves,
+            pendingLeaves,
+            approvedLeaves,
+            rejectedLeaves,
+            paidLeaves,
+            unpaidLeaves
+        );
     }
     
     private LeaveResponse toResponse(Leave leave) {

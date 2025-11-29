@@ -626,6 +626,149 @@ Authorization: Bearer <HR_TOKEN>
 }
 ```
 
+#### 7.4 Get Total Leaves Statistics
+**GET** `http://localhost:1234/api/leaves/total`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+```
+
+**Expected Response:** Leave statistics summary
+
+```json
+{
+    "totalLeaves": 15,
+    "pendingLeaves": 3,
+    "approvedLeaves": 10,
+    "rejectedLeaves": 2,
+    "paidLeaves": 12,
+    "unpaidLeaves": 3
+}
+```
+
+**Note:** This endpoint provides HR with a comprehensive overview of all leaves in the system, including breakdowns by status (PENDING, APPROVED, REJECTED) and by type (PAID, UNPAID).
+
+#### 7.5 Get All Approved Leaves
+**GET** `http://localhost:1234/api/leaves/approved`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+```
+
+**Expected Response:** Array of approved leave objects
+
+```json
+[
+    {
+        "id": 1,
+        "leaveDate": "2025-01-20",
+        "reason": "Personal work",
+        "status": "APPROVED",
+        "leaveType": "PAID",
+        "approvedBy": "HR Manager",
+        "approvedAt": "2025-11-27T22:06:04",
+        "createdAt": "2025-11-27T21:58:40"
+    },
+    {
+        "id": 3,
+        "leaveDate": "2025-01-25",
+        "reason": "Medical appointment",
+        "status": "APPROVED",
+        "leaveType": "UNPAID",
+        "approvedBy": "HR Manager",
+        "approvedAt": "2025-11-27T22:10:15",
+        "createdAt": "2025-11-27T22:05:30"
+    }
+]
+```
+
+#### 7.6 Get All Rejected Leaves
+**GET** `http://localhost:1234/api/leaves/rejected`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+```
+
+**Expected Response:** Array of rejected leave objects
+
+```json
+[
+    {
+        "id": 2,
+        "leaveDate": "2025-01-22",
+        "reason": "Personal work",
+        "status": "REJECTED",
+        "leaveType": "PAID",
+        "approvedBy": null,
+        "approvedAt": null,
+        "createdAt": "2025-11-27T22:01:23"
+    }
+]
+```
+
+#### 7.7 Get All Paid Leaves
+**GET** `http://localhost:1234/api/leaves/paid`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+```
+
+**Expected Response:** Array of paid leave objects (includes all statuses: PENDING, APPROVED, REJECTED)
+
+```json
+[
+    {
+        "id": 1,
+        "leaveDate": "2025-01-20",
+        "reason": "Personal work",
+        "status": "APPROVED",
+        "leaveType": "PAID",
+        "approvedBy": "HR Manager",
+        "approvedAt": "2025-11-27T22:06:04",
+        "createdAt": "2025-11-27T21:58:40"
+    },
+    {
+        "id": 4,
+        "leaveDate": "2025-01-28",
+        "reason": "Family event",
+        "status": "PENDING",
+        "leaveType": "PAID",
+        "approvedBy": null,
+        "approvedAt": null,
+        "createdAt": "2025-11-27T22:15:20"
+    }
+]
+```
+
+#### 7.8 Get All Unpaid Leaves
+**GET** `http://localhost:1234/api/leaves/unpaid`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+```
+
+**Expected Response:** Array of unpaid leave objects (includes all statuses: PENDING, APPROVED, REJECTED)
+
+```json
+[
+    {
+        "id": 3,
+        "leaveDate": "2025-01-25",
+        "reason": "Medical appointment",
+        "status": "APPROVED",
+        "leaveType": "UNPAID",
+        "approvedBy": "HR Manager",
+        "approvedAt": "2025-11-27T22:10:15",
+        "createdAt": "2025-11-27T22:05:30"
+    }
+]
+```
+
 ---
 
 ### **Phase 8: Invoice Management (Intern Actions)**
@@ -1654,6 +1797,73 @@ Reject a leave request (HR only).
 
 **Headers:** `Authorization: Bearer <hr-jwt-token>`
 
+#### GET `/api/leaves/total`
+Get total leaves statistics (HR only). Returns comprehensive statistics about all leaves in the system.
+
+**Headers:** `Authorization: Bearer <hr-jwt-token>`
+
+**Response:**
+```json
+{
+  "totalLeaves": 15,
+  "pendingLeaves": 3,
+  "approvedLeaves": 10,
+  "rejectedLeaves": 2,
+  "paidLeaves": 12,
+  "unpaidLeaves": 3
+}
+```
+
+**Error Responses:**
+- `403` - Forbidden ("Only HR can view total leaves")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Note:** This endpoint provides HR with a comprehensive overview of all leaves in the system, including breakdowns by status (PENDING, APPROVED, REJECTED) and by type (PAID, UNPAID).
+
+#### GET `/api/leaves/approved`
+Get all approved leave requests (HR only).
+
+**Headers:** `Authorization: Bearer <hr-jwt-token>`
+
+**Response:** Array of approved leave objects
+
+**Error Responses:**
+- `403` - Forbidden ("Only HR can view approved leaves")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+#### GET `/api/leaves/rejected`
+Get all rejected leave requests (HR only).
+
+**Headers:** `Authorization: Bearer <hr-jwt-token>`
+
+**Response:** Array of rejected leave objects
+
+**Error Responses:**
+- `403` - Forbidden ("Only HR can view rejected leaves")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+#### GET `/api/leaves/paid`
+Get all paid leave requests (HR only). Returns leaves with leaveType PAID regardless of status (PENDING, APPROVED, or REJECTED).
+
+**Headers:** `Authorization: Bearer <hr-jwt-token>`
+
+**Response:** Array of paid leave objects
+
+**Error Responses:**
+- `403` - Forbidden ("Only HR can view paid leaves")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+#### GET `/api/leaves/unpaid`
+Get all unpaid leave requests (HR only). Returns leaves with leaveType UNPAID regardless of status (PENDING, APPROVED, or REJECTED).
+
+**Headers:** `Authorization: Bearer <hr-jwt-token>`
+
+**Response:** Array of unpaid leave objects
+
+**Error Responses:**
+- `403` - Forbidden ("Only HR can view unpaid leaves")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
 ---
 
 ### 5. Announcement Endpoints
@@ -2239,6 +2449,36 @@ curl -X POST http://localhost:1234/api/leaves/request \
   -H "Authorization: Bearer YOUR_INTERN_TOKEN_HERE" \
   -H "Content-Type: application/json" \
   -d '{"leaveDate":"2025-01-20","reason":"Personal work"}'
+```
+
+### Get Total Leaves Statistics (HR only)
+```bash
+curl -X GET http://localhost:1234/api/leaves/total \
+  -H "Authorization: Bearer YOUR_HR_TOKEN_HERE"
+```
+
+### Get Approved Leaves (HR only)
+```bash
+curl -X GET http://localhost:1234/api/leaves/approved \
+  -H "Authorization: Bearer YOUR_HR_TOKEN_HERE"
+```
+
+### Get Rejected Leaves (HR only)
+```bash
+curl -X GET http://localhost:1234/api/leaves/rejected \
+  -H "Authorization: Bearer YOUR_HR_TOKEN_HERE"
+```
+
+### Get Paid Leaves (HR only)
+```bash
+curl -X GET http://localhost:1234/api/leaves/paid \
+  -H "Authorization: Bearer YOUR_HR_TOKEN_HERE"
+```
+
+### Get Unpaid Leaves (HR only)
+```bash
+curl -X GET http://localhost:1234/api/leaves/unpaid \
+  -H "Authorization: Bearer YOUR_HR_TOKEN_HERE"
 ```
 
 ### Create Training (HR only)

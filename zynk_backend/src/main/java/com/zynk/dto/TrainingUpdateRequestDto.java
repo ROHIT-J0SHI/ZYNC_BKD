@@ -9,3 +9,4 @@ public class TrainingUpdateRequestDto {
     private String link;
 }
 
+

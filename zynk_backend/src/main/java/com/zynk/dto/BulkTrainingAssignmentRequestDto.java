@@ -15,3 +15,4 @@ public class BulkTrainingAssignmentRequestDto {
     private List<Long> internIds;
 }
 
+

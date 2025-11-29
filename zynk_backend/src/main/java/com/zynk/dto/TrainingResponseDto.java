@@ -16,3 +16,4 @@ public class TrainingResponseDto {
     private LocalDateTime updatedAt;
 }
 
+

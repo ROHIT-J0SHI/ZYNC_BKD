@@ -17,3 +17,4 @@ public interface TrainingAssignmentRepository extends JpaRepository<TrainingAssi
     List<TrainingAssignment> findByInternId(Long internId);
 }
 
+

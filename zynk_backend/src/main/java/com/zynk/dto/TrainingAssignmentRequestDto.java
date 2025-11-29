@@ -14,3 +14,4 @@ public class TrainingAssignmentRequestDto {
     private Long internId;
 }
 
+

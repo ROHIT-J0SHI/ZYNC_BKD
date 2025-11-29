@@ -3,6 +3,7 @@ package com.zynk.controller;
 import com.zynk.dto.LeaveBalanceResponse;
 import com.zynk.dto.LeaveRequest;
 import com.zynk.dto.LeaveResponse;
+import com.zynk.dto.LeaveTotalResponse;
 import com.zynk.entity.Leave;
 import com.zynk.service.InternDetailsService;
 import com.zynk.service.LeaveService;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/leaves")
@@ -54,8 +56,73 @@ public class LeaveController {
     }
     
     @GetMapping("/pending")
-    public ResponseEntity<List<LeaveResponse>> getPendingLeaves() {
-        return ResponseEntity.ok(leaveService.getAllPendingLeaves());
+    public ResponseEntity<?> getPendingLeaves(
+            @RequestHeader("Authorization") String token) {
+        try {
+            String role = jwtService.extractRole(token.replace("Bearer ", ""));
+            if (!"HR".equals(role)) {
+                return ResponseEntity.status(403).body(Map.of("error", "Only HR can view pending leaves"));
+            }
+            return ResponseEntity.ok(leaveService.getAllPendingLeaves());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/approved")
+    public ResponseEntity<?> getApprovedLeaves(
+            @RequestHeader("Authorization") String token) {
+        try {
+            String role = jwtService.extractRole(token.replace("Bearer ", ""));
+            if (!"HR".equals(role)) {
+                return ResponseEntity.status(403).body(Map.of("error", "Only HR can view approved leaves"));
+            }
+            return ResponseEntity.ok(leaveService.getAllApprovedLeaves());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/rejected")
+    public ResponseEntity<?> getRejectedLeaves(
+            @RequestHeader("Authorization") String token) {
+        try {
+            String role = jwtService.extractRole(token.replace("Bearer ", ""));
+            if (!"HR".equals(role)) {
+                return ResponseEntity.status(403).body(Map.of("error", "Only HR can view rejected leaves"));
+            }
+            return ResponseEntity.ok(leaveService.getAllRejectedLeaves());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/paid")
+    public ResponseEntity<?> getPaidLeaves(
+            @RequestHeader("Authorization") String token) {
+        try {
+            String role = jwtService.extractRole(token.replace("Bearer ", ""));
+            if (!"HR".equals(role)) {
+                return ResponseEntity.status(403).body(Map.of("error", "Only HR can view paid leaves"));
+            }
+            return ResponseEntity.ok(leaveService.getAllPaidLeaves());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/unpaid")
+    public ResponseEntity<?> getUnpaidLeaves(
+            @RequestHeader("Authorization") String token) {
+        try {
+            String role = jwtService.extractRole(token.replace("Bearer ", ""));
+            if (!"HR".equals(role)) {
+                return ResponseEntity.status(403).body(Map.of("error", "Only HR can view unpaid leaves"));
+            }
+            return ResponseEntity.ok(leaveService.getAllUnpaidLeaves());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
     
     @PutMapping("/{leaveId}/approve")
@@ -77,6 +144,22 @@ public class LeaveController {
             return ResponseEntity.ok(leave);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
+    @GetMapping("/total")
+    public ResponseEntity<?> getTotalLeaves(
+            @RequestHeader("Authorization") String token) {
+        try {
+            String role = jwtService.extractRole(token.replace("Bearer ", ""));
+            if (!"HR".equals(role)) {
+                return ResponseEntity.status(403).body(Map.of("error", "Only HR can view total leaves"));
+            }
+            
+            LeaveTotalResponse response = leaveService.getTotalLeaves();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 }

@@ -21,3 +21,4 @@ public class AssignedTrainingResponseDto {
     private LocalDateTime completedAt;
 }
 
+
