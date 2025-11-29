@@ -163,6 +163,25 @@ public class TrainingController {
         }
     }
     
+    @DeleteMapping("/assign")
+    public ResponseEntity<?> unassignTraining(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody TrainingAssignmentRequestDto request) {
+        try {
+            String role = jwtService.extractRole(token.replace("Bearer ", ""));
+            if (!"HR".equals(role)) {
+                return ResponseEntity.status(403).body(Map.of("error", "Only HR can unassign trainings"));
+            }
+            
+            Long hrUserId = jwtService.extractUserId(token.replace("Bearer ", ""));
+            trainingService.unassignTrainingFromIntern(
+                request.getTrainingId(), request.getInternId(), hrUserId);
+            return ResponseEntity.ok(Map.of("message", "Training unassigned successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+    
     // INTERN endpoints
     @GetMapping("/my-assignments")
     public ResponseEntity<?> getMyAssignments(@RequestHeader("Authorization") String token) {

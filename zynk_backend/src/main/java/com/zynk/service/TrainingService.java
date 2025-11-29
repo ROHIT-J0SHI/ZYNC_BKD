@@ -180,6 +180,27 @@ public class TrainingService {
             .collect(Collectors.toList());
     }
     
+    @Transactional
+    public void unassignTrainingFromIntern(Long trainingId, Long internId, Long hrUserId) {
+        Training training = trainingRepository.findById(trainingId)
+            .orElseThrow(() -> new RuntimeException("Training not found"));
+        
+        InternDetails intern = internDetailsRepository.findById(internId)
+            .orElseThrow(() -> new RuntimeException("Intern not found"));
+        
+        User hrUser = userRepository.findById(hrUserId)
+            .orElseThrow(() -> new RuntimeException("HR user not found"));
+        
+        if (hrUser.getRole() != User.UserRole.HR) {
+            throw new RuntimeException("Only HR can unassign trainings");
+        }
+        
+        TrainingAssignment assignment = trainingAssignmentRepository.findByInternAndTraining(intern, training)
+            .orElseThrow(() -> new RuntimeException("Training assignment not found"));
+        
+        trainingAssignmentRepository.delete(assignment);
+    }
+    
     private TrainingResponseDto toTrainingResponse(Training training) {
         return new TrainingResponseDto(
             training.getId(),

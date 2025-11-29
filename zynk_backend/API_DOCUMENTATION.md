@@ -1322,7 +1322,38 @@ Authorization: Bearer <HR_TOKEN>
 ]
 ```
 
-#### 11.9 Delete Training
+#### 11.9 Unassign Training from Intern
+**DELETE** `http://localhost:1234/api/trainings/assign`
+
+**Headers:**
+```
+Authorization: Bearer <HR_TOKEN>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "trainingId": 1,
+  "internId": 1
+}
+```
+
+**Expected Response:**
+```json
+{
+  "message": "Training unassigned successfully"
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request (e.g., "Training not found", "Intern not found", "Training assignment not found")
+- `403` - Forbidden ("Only HR can unassign trainings")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Note:** This endpoint removes the assignment of a training from a specific intern. After unassigning, the training can be deleted if it has no other assignments.
+
+#### 11.10 Delete Training
 **DELETE** `http://localhost:1234/api/trainings/2`
 
 **Headers:**
@@ -2200,6 +2231,42 @@ Authorization: Bearer <hr-jwt-token>
 
 ---
 
+#### DELETE `/api/trainings/assign`
+Unassign a training from an intern. **HR Only** - Requires HR JWT token.
+
+**Headers:**
+```
+Authorization: Bearer <hr-jwt-token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "trainingId": 1,
+  "internId": 1
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "message": "Training unassigned successfully"
+}
+```
+
+**Error Responses:**
+- `400` - Bad Request (e.g., "Training not found", "Intern not found", "Training assignment not found")
+- `403` - Forbidden ("Only HR can unassign trainings")
+- `401` - Unauthorized (Invalid or missing JWT token)
+
+**Important Notes:**
+- This endpoint removes the assignment of a training from a specific intern
+- After unassigning all interns from a training, the training can be deleted
+- The assignment record is permanently deleted
+
+---
+
 #### GET `/api/trainings/my-assignments`
 Get all training assignments for the logged-in intern. **Intern Only** - Requires Intern JWT token.
 
@@ -2351,9 +2418,11 @@ All endpoints return standard error format:
 10. **Training Module:**
     - HR can create, update, and delete training materials
     - HR can assign trainings to one or multiple interns
+    - HR can unassign trainings from interns
     - Interns can only view trainings assigned to them
     - Interns cannot create, update, delete, or assign trainings
     - A training cannot be deleted if it has been assigned to any intern
+    - After unassigning all interns from a training, the training can be deleted
     - Duplicate assignments (same training to same intern) are prevented
     - Training materials include: title (required), description (optional), and link (required)
 
@@ -2496,6 +2565,17 @@ curl -X POST http://localhost:1234/api/trainings \
 ### Assign Training to Intern (HR only)
 ```bash
 curl -X POST http://localhost:1234/api/trainings/assign \
+  -H "Authorization: Bearer YOUR_HR_TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "trainingId": 1,
+    "internId": 1
+  }'
+```
+
+### Unassign Training from Intern (HR only)
+```bash
+curl -X DELETE http://localhost:1234/api/trainings/assign \
   -H "Authorization: Bearer YOUR_HR_TOKEN_HERE" \
   -H "Content-Type: application/json" \
   -d '{
