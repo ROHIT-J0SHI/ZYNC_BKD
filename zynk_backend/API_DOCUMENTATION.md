@@ -366,52 +366,22 @@ Content-Type: application/json
 }
 ```
 
-**Expected Response:** Leave object with status PENDING
+**Expected Response:** LeaveResponse object with status PENDING
 
 Example: 
 ```json
 {
     "id": 1,
-    "intern": {
-        "id": 2,
-        "user": {
-            "id": 3,
-            "email": "rohit.joshi@jynk.com",
-            "password": "$2a$10$8dXEz4Kiw4CbBCSSJvZT4uob.AcstXdcE9XV7iiEjMGcizJvb8ete",
-            "role": "INTERN",
-            "name": "ROhit Joshi",
-            "createdAt": "2025-11-27T21:53:52",
-            "updatedAt": "2025-11-27T21:53:52"
-        },
-        "joiningDate": "2024-11-01",
-        "internshipDurationMonths": 6,
-        "stipendType": "MONTHLY",
-        "stipendAmount": 15000.0,
-        "managerEmail": "manager@example.com",
-        "panNumber": "87287821234F",
-        "aadhaarNumber": "12343936789012",
-        "bankAccountNumber": "123438890",
-        "bankIfscCode": "HDFC0001234",
-        "bankName": "HDFC Bank",
-        "bankBranch": "Mumbai Branch",
-        "address": "123 Main Street",
-        "city": "Mumbai",
-        "state": "Maharashtra",
-        "pincode": "400001",
-        "phoneNumber": "9876543210",
-        "signatureFilePath": null,
-        "createdAt": "2025-11-27T21:53:52",
-        "updatedAt": "2025-11-27T21:56:45",
-        "internshipEndDate": "2025-05-01"
-    },
+    "internId": 2,
+    "internName": "ROhit Joshi",
+    "internEmail": "rohit.joshi@jynk.com",
     "leaveDate": "2025-01-20",
     "reason": "Personal work",
     "status": "PENDING",
     "leaveType": "PAID",
     "approvedBy": null,
     "approvedAt": null,
-    "createdAt": "2025-11-27T21:58:39.691304228",
-    "updatedAt": "2025-11-27T21:58:39.691315362"
+    "createdAt": "2025-11-27T21:58:39.691304228"
 }
 ```
 
@@ -425,16 +395,16 @@ Example:
 Authorization: Bearer <INTERN1_TOKEN>
 ```
 
-**Expected Response:** Array of leave objects
+**Expected Response:** Array of LeaveResponse objects
 
-Ex Response
-
-
-**Request Body:**
+Example Response:
 ```json
 [
     {
         "id": 1,
+        "internId": 2,
+        "internName": "ROhit Joshi",
+        "internEmail": "rohit.joshi@jynk.com",
         "leaveDate": "2025-01-20",
         "reason": "Personal work",
         "status": "PENDING",
@@ -445,6 +415,9 @@ Ex Response
     },
     {
         "id": 2,
+        "internId": 2,
+        "internName": "ROhit Joshi",
+        "internEmail": "rohit.joshi@jynk.com",
         "leaveDate": "2025-01-22",
         "reason": "Personal work",
         "status": "PENDING",
@@ -487,12 +460,15 @@ Content-Type: application/json
 Authorization: Bearer <HR_TOKEN>
 ```
 
-**Expected Response:** Array of pending leave requests
+**Expected Response:** Array of pending leave requests with user details
 
 ```json
 [
     {
         "id": 1,
+        "internId": 2,
+        "internName": "ROhit Joshi",
+        "internEmail": "rohit.joshi@jynk.com",
         "leaveDate": "2025-01-20",
         "reason": "Personal work",
         "status": "PENDING",
@@ -503,6 +479,9 @@ Authorization: Bearer <HR_TOKEN>
     },
     {
         "id": 2,
+        "internId": 2,
+        "internName": "ROhit Joshi",
+        "internEmail": "rohit.joshi@jynk.com",
         "leaveDate": "2025-01-22",
         "reason": "Personal work",
         "status": "PENDING",
@@ -522,51 +501,21 @@ Authorization: Bearer <HR_TOKEN>
 Authorization: Bearer <HR_TOKEN>
 ```
 
-**Expected Response:** Updated leave object with status APPROVED
+**Expected Response:** Updated LeaveResponse object with status APPROVED
 
 ```json
 {
     "id": 1,
-    "intern": {
-        "id": 2,
-        "user": {
-            "id": 3,
-            "email": "rohit.joshi@jynk.com",
-            "password": "$2a$10$8dXEz4Kiw4CbBCSSJvZT4uob.AcstXdcE9XV7iiEjMGcizJvb8ete",
-            "role": "INTERN",
-            "name": "ROhit Joshi",
-            "createdAt": "2025-11-27T21:53:52",
-            "updatedAt": "2025-11-27T21:53:52"
-        },
-        "joiningDate": "2024-11-01",
-        "internshipDurationMonths": 6,
-        "stipendType": "MONTHLY",
-        "stipendAmount": 15000.0,
-        "managerEmail": "manager@example.com",
-        "panNumber": "87287821234F",
-        "aadhaarNumber": "12343936789012",
-        "bankAccountNumber": "123438890",
-        "bankIfscCode": "HDFC0001234",
-        "bankName": "HDFC Bank",
-        "bankBranch": "Mumbai Branch",
-        "address": "123 Main Street",
-        "city": "Mumbai",
-        "state": "Maharashtra",
-        "pincode": "400001",
-        "phoneNumber": "9876543210",
-        "signatureFilePath": null,
-        "createdAt": "2025-11-27T21:53:52",
-        "updatedAt": "2025-11-27T21:56:45",
-        "internshipEndDate": "2025-05-01"
-    },
+    "internId": 2,
+    "internName": "ROhit Joshi",
+    "internEmail": "rohit.joshi@jynk.com",
     "leaveDate": "2025-01-20",
     "reason": "Personal work",
     "status": "APPROVED",
     "leaveType": "PAID",
     "approvedBy": "HR Manager",
     "approvedAt": "2025-11-27T22:06:04.621069611",
-    "createdAt": "2025-11-27T21:58:40",
-    "updatedAt": "2025-11-27T22:06:04.621395952"
+    "createdAt": "2025-11-27T21:58:40"
 }
 ```
 
@@ -578,51 +527,21 @@ Authorization: Bearer <HR_TOKEN>
 Authorization: Bearer <HR_TOKEN>
 ```
 
-**Expected Response:** Updated leave object with status REJECTED
+**Expected Response:** Updated LeaveResponse object with status REJECTED
 
 ```json
 {
     "id": 1,
-    "intern": {
-        "id": 2,
-        "user": {
-            "id": 3,
-            "email": "rohit.joshi@jynk.com",
-            "password": "$2a$10$8dXEz4Kiw4CbBCSSJvZT4uob.AcstXdcE9XV7iiEjMGcizJvb8ete",
-            "role": "INTERN",
-            "name": "ROhit Joshi",
-            "createdAt": "2025-11-27T21:53:52",
-            "updatedAt": "2025-11-27T21:53:52"
-        },
-        "joiningDate": "2024-11-01",
-        "internshipDurationMonths": 6,
-        "stipendType": "MONTHLY",
-        "stipendAmount": 15000.0,
-        "managerEmail": "manager@example.com",
-        "panNumber": "87287821234F",
-        "aadhaarNumber": "12343936789012",
-        "bankAccountNumber": "123438890",
-        "bankIfscCode": "HDFC0001234",
-        "bankName": "HDFC Bank",
-        "bankBranch": "Mumbai Branch",
-        "address": "123 Main Street",
-        "city": "Mumbai",
-        "state": "Maharashtra",
-        "pincode": "400001",
-        "phoneNumber": "9876543210",
-        "signatureFilePath": null,
-        "createdAt": "2025-11-27T21:53:52",
-        "updatedAt": "2025-11-27T21:56:45",
-        "internshipEndDate": "2025-05-01"
-    },
+    "internId": 2,
+    "internName": "ROhit Joshi",
+    "internEmail": "rohit.joshi@jynk.com",
     "leaveDate": "2025-01-20",
     "reason": "Personal work",
     "status": "REJECTED",
     "leaveType": "PAID",
     "approvedBy": "HR Manager",
     "approvedAt": "2025-11-27T22:06:04.621069611",
-    "createdAt": "2025-11-27T21:58:40",
-    "updatedAt": "2025-11-27T22:06:04.621395952"
+    "createdAt": "2025-11-27T21:58:40"
 }
 ```
 
@@ -1725,6 +1644,23 @@ Get all interns (HR only).
 
 **Headers:** `Authorization: Bearer <hr-jwt-token>`
 
+**Response:** LeaveResponse object with user details
+```json
+{
+  "id": 1,
+  "internId": 2,
+  "internName": "John Doe",
+  "internEmail": "john.doe@example.com",
+  "leaveDate": "2025-06-15",
+  "reason": "Personal work",
+  "status": "REJECTED",
+  "leaveType": "PAID",
+  "approvedBy": null,
+  "approvedAt": null,
+  "createdAt": "2025-11-27T21:58:40"
+}
+```
+
 ---
 
 ### 3. Invoice Endpoints
@@ -1790,10 +1726,29 @@ Request a leave (logged-in intern).
 }
 ```
 
+**Response:** LeaveResponse object with user details
+```json
+{
+  "id": 1,
+  "internId": 2,
+  "internName": "John Doe",
+  "internEmail": "john.doe@example.com",
+  "leaveDate": "2025-06-15",
+  "reason": "Personal work",
+  "status": "PENDING",
+  "leaveType": "PAID",
+  "approvedBy": null,
+  "approvedAt": null,
+  "createdAt": "2025-11-27T21:58:40"
+}
+```
+
 #### GET `/api/leaves/my-leaves`
 Get all leaves for the logged-in intern.
 
 **Headers:** `Authorization: Bearer <intern-jwt-token>`
+
+**Response:** Array of LeaveResponse objects with user details
 
 #### GET `/api/leaves/balance`
 Get leave balance for the logged-in intern.
@@ -1811,9 +1766,28 @@ Get leave balance for the logged-in intern.
 ```
 
 #### GET `/api/leaves/pending`
-Get all pending leave requests (HR only).
+Get all pending leave requests (HR only). Returns leave requests with user details (internId, internName, internEmail) for UI display.
 
 **Headers:** `Authorization: Bearer <hr-jwt-token>`
+
+**Response:** Array of LeaveResponse objects with user details
+```json
+[
+  {
+    "id": 1,
+    "internId": 2,
+    "internName": "John Doe",
+    "internEmail": "john.doe@example.com",
+    "leaveDate": "2025-06-15",
+    "reason": "Personal work",
+    "status": "PENDING",
+    "leaveType": "PAID",
+    "approvedBy": null,
+    "approvedAt": null,
+    "createdAt": "2025-11-27T21:58:40"
+  }
+]
+```
 
 #### PUT `/api/leaves/{leaveId}/approve`
 Approve a leave request (HR only).
@@ -1822,6 +1796,23 @@ Approve a leave request (HR only).
 - `approvedBy`: Name of approver
 
 **Headers:** `Authorization: Bearer <hr-jwt-token>`
+
+**Response:** LeaveResponse object with user details
+```json
+{
+  "id": 1,
+  "internId": 2,
+  "internName": "John Doe",
+  "internEmail": "john.doe@example.com",
+  "leaveDate": "2025-06-15",
+  "reason": "Personal work",
+  "status": "APPROVED",
+  "leaveType": "PAID",
+  "approvedBy": "HR Manager",
+  "approvedAt": "2025-11-27T22:06:04",
+  "createdAt": "2025-11-27T21:58:40"
+}
+```
 
 #### PUT `/api/leaves/{leaveId}/reject`
 Reject a leave request (HR only).

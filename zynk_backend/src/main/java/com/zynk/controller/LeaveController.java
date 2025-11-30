@@ -32,8 +32,8 @@ public class LeaveController {
         try {
             Long userId = jwtService.extractUserId(token.replace("Bearer ", ""));
             Long internId = internDetailsService.getInternDetailsIdByUserId(userId);
-            Leave leave = leaveService.createLeaveRequest(internId, request);
-            return ResponseEntity.ok(leave);
+            LeaveResponse leaveResponse = leaveService.createLeaveRequest(internId, request);
+            return ResponseEntity.ok(leaveResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -68,7 +68,7 @@ public class LeaveController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-    
+
     @GetMapping("/approved")
     public ResponseEntity<?> getApprovedLeaves(
             @RequestHeader("Authorization") String token) {
@@ -82,7 +82,7 @@ public class LeaveController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-    
+
     @GetMapping("/rejected")
     public ResponseEntity<?> getRejectedLeaves(
             @RequestHeader("Authorization") String token) {
@@ -96,7 +96,7 @@ public class LeaveController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-    
+
     @GetMapping("/paid")
     public ResponseEntity<?> getPaidLeaves(
             @RequestHeader("Authorization") String token) {
@@ -110,7 +110,7 @@ public class LeaveController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-    
+
     @GetMapping("/unpaid")
     public ResponseEntity<?> getUnpaidLeaves(
             @RequestHeader("Authorization") String token) {
@@ -130,8 +130,8 @@ public class LeaveController {
             @PathVariable Long leaveId,
             @RequestParam String approvedBy) {
         try {
-            Leave leave = leaveService.approveLeave(leaveId, approvedBy);
-            return ResponseEntity.ok(leave);
+            LeaveResponse leaveResponse = leaveService.approveLeave(leaveId, approvedBy);
+            return ResponseEntity.ok(leaveResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -140,13 +140,13 @@ public class LeaveController {
     @PutMapping("/{leaveId}/reject")
     public ResponseEntity<?> rejectLeave(@PathVariable Long leaveId) {
         try {
-            Leave leave = leaveService.rejectLeave(leaveId);
+            LeaveResponse leave = leaveService.rejectLeave(leaveId);
             return ResponseEntity.ok(leave);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
     @GetMapping("/total")
     public ResponseEntity<?> getTotalLeaves(
             @RequestHeader("Authorization") String token) {
@@ -155,7 +155,7 @@ public class LeaveController {
             if (!"HR".equals(role)) {
                 return ResponseEntity.status(403).body(Map.of("error", "Only HR can view total leaves"));
             }
-            
+
             LeaveTotalResponse response = leaveService.getTotalLeaves();
             return ResponseEntity.ok(response);
         } catch (Exception e) {

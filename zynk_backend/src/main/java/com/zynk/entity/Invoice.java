@@ -47,12 +47,6 @@ public class Invoice {
     @Column(nullable = false)
     private Double stipendAmount;
     
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private InvoiceStatus status; // PENDING, APPROVED, PAID
-    
-    private String remarks;
-    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
@@ -65,10 +59,6 @@ public class Invoice {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
-    }
-    
-    public enum InvoiceStatus {
-        PENDING, APPROVED, PAID
     }
 }
 

@@ -64,19 +64,6 @@ public class InvoiceController {
         }
     }
     
-    @PutMapping("/{invoiceId}/status")
-    public ResponseEntity<?> updateInvoiceStatus(
-            @PathVariable Long invoiceId,
-            @RequestParam Invoice.InvoiceStatus status,
-            @RequestParam(required = false) String remarks) {
-        try {
-            Invoice invoice = invoiceService.updateInvoiceStatus(invoiceId, status, remarks);
-            return ResponseEntity.ok(invoice);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-    
     @GetMapping("/{invoiceId}")
     public ResponseEntity<?> getInvoice(@PathVariable Long invoiceId) {
         try {

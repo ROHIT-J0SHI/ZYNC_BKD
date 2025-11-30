@@ -6,7 +6,6 @@ import com.zynk.dto.LeaveResponse;
 import com.zynk.dto.LeaveTotalResponse;
 import com.zynk.entity.InternDetails;
 import com.zynk.entity.Leave;
-import com.zynk.entity.User;
 import com.zynk.repository.InternDetailsRepository;
 import com.zynk.repository.LeaveRepository;
 import com.zynk.util.LeaveBalanceCalculator;
@@ -25,7 +24,7 @@ public class LeaveService {
     private final InternDetailsRepository internDetailsRepository;
     
     @Transactional
-    public Leave createLeaveRequest(Long internId, LeaveRequest request) {
+    public LeaveResponse createLeaveRequest(Long internId, LeaveRequest request) {
         InternDetails intern = internDetailsRepository.findById(internId)
             .orElseThrow(() -> new RuntimeException("Intern not found"));
         
@@ -50,11 +49,12 @@ public class LeaveService {
         leave.setStatus(Leave.LeaveStatus.PENDING);
         leave.setLeaveType(leaveType);
         
-        return leaveRepository.save(leave);
+        Leave savedLeave = leaveRepository.save(leave);
+        return toResponse(savedLeave);
     }
     
     @Transactional
-    public Leave approveLeave(Long leaveId, String approvedBy) {
+    public LeaveResponse approveLeave(Long leaveId, String approvedBy) {
         Leave leave = leaveRepository.findById(leaveId)
             .orElseThrow(() -> new RuntimeException("Leave not found"));
         
@@ -71,15 +71,17 @@ public class LeaveService {
         leave.setApprovedBy(approvedBy);
         leave.setApprovedAt(java.time.LocalDateTime.now());
         
-        return leaveRepository.save(leave);
+        Leave savedLeave = leaveRepository.save(leave);
+        return toResponse(savedLeave);
     }
     
     @Transactional
-    public Leave rejectLeave(Long leaveId) {
+    public LeaveResponse rejectLeave(Long leaveId) {
         Leave leave = leaveRepository.findById(leaveId)
             .orElseThrow(() -> new RuntimeException("Leave not found"));
         leave.setStatus(Leave.LeaveStatus.REJECTED);
-        return leaveRepository.save(leave);
+        Leave savedLeave = leaveRepository.save(leave);
+        return toResponse(savedLeave);
     }
     
     public List<LeaveResponse> getLeavesByIntern(Long internId) {
@@ -181,8 +183,12 @@ public class LeaveService {
     }
     
     private LeaveResponse toResponse(Leave leave) {
+        InternDetails intern = leave.getIntern();
         return new LeaveResponse(
             leave.getId(),
+            intern.getId(),
+            intern.getUser().getName(),
+            intern.getUser().getEmail(),
             leave.getLeaveDate(),
             leave.getReason(),
             leave.getStatus(),

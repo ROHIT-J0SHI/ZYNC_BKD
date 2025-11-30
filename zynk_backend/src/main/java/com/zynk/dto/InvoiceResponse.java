@@ -1,6 +1,5 @@
 package com.zynk.dto;
 
-import com.zynk.entity.Invoice;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -18,8 +17,6 @@ public class InvoiceResponse {
     private Integer paidLeaves;
     private Integer unpaidLeaves;
     private Double stipendAmount;
-    private Invoice.InvoiceStatus status;
-    private String remarks;
     private String internName;
     private String internEmail;
 }

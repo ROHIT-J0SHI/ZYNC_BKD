@@ -11,6 +11,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LeaveResponse {
     private Long id;
+    private Long internId;
+    private String internName;
+    private String internEmail;
     private LocalDate leaveDate;
     private String reason;
     private Leave.LeaveStatus status;

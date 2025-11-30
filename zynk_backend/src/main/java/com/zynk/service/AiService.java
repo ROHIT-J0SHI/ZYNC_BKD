@@ -106,17 +106,10 @@ public class AiService {
             .filter(leave -> leave.getLeaveType() == Leave.LeaveType.UNPAID)
             .count();
         
-        int approvedInvoices = (int) invoices.stream()
-            .filter(inv -> inv.getStatus() == com.zynk.entity.Invoice.InvoiceStatus.APPROVED 
-                || inv.getStatus() == com.zynk.entity.Invoice.InvoiceStatus.PAID)
-            .count();
-        int pendingInvoices = (int) invoices.stream()
-            .filter(inv -> inv.getStatus() == com.zynk.entity.Invoice.InvoiceStatus.PENDING)
-            .count();
+        // Since invoices no longer have status, count all invoices
+        int totalInvoices = invoices.size();
         
         double totalStipend = invoices.stream()
-            .filter(inv -> inv.getStatus() == com.zynk.entity.Invoice.InvoiceStatus.APPROVED 
-                || inv.getStatus() == com.zynk.entity.Invoice.InvoiceStatus.PAID)
             .mapToDouble(com.zynk.entity.Invoice::getStipendAmount)
             .sum();
         
@@ -135,9 +128,7 @@ public class AiService {
         StringBuilder context = new StringBuilder();
         context.append("Monthly Data for ").append(yearMonth.toString()).append(":\n");
         context.append("- Active Interns: ").append(monthActiveInterns.size()).append("\n");
-        context.append("- Invoices Submitted: ").append(invoices.size()).append("\n");
-        context.append("- Invoices Approved: ").append(approvedInvoices).append("\n");
-        context.append("- Invoices Pending: ").append(pendingInvoices).append("\n");
+        context.append("- Total Invoices: ").append(totalInvoices).append("\n");
         context.append("- Total Payable Stipend: ₹").append(String.format("%.2f", totalStipend)).append("\n");
         context.append("- Paid Leaves Taken: ").append(paidLeaves).append("\n");
         context.append("- Unpaid Leaves Taken: ").append(unpaidLeaves).append("\n");

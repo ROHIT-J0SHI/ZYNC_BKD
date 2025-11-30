@@ -10,9 +10,7 @@ import com.zynk.repository.InternDetailsRepository;
 import com.zynk.repository.LeaveRepository;
 import com.zynk.util.InvoiceFormatter;
 import com.zynk.util.InvoiceNumberGenerator;
-import com.zynk.util.LeaveBalanceCalculator;
 import com.zynk.util.NumberToWordsConverter;
-import com.zynk.util.WorkingDaysCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,8 +60,9 @@ public class InvoiceService {
         LocalDate periodFrom = monthDates[0];
         LocalDate periodTill = monthDates[1];
         
-        // Calculate working days
-        int totalWorkingDays = WorkingDaysCalculator.calculateWorkingDays(periodFrom, periodTill);
+        // Calculate total days in the month (including weekends)
+        // Monthly stipend is for the whole month, so we use total calendar days
+        int totalDaysInMonth = invoiceMonth.lengthOfMonth();
         
         // Get leaves for this month
         List<Leave> monthLeaves = leaveRepository.findByInternAndLeaveDateBetween(
@@ -73,7 +72,7 @@ public class InvoiceService {
             .filter(leave -> leave.getStatus() == Leave.LeaveStatus.APPROVED)
             .collect(Collectors.toList());
         
-        // Count paid and unpaid leaves
+        // Count paid and unpaid leaves (only approved leaves affect stipend calculation)
         int paidLeaves = (int) approvedLeaves.stream()
             .filter(leave -> leave.getLeaveType() == Leave.LeaveType.PAID)
             .count();
@@ -81,8 +80,13 @@ public class InvoiceService {
             .filter(leave -> leave.getLeaveType() == Leave.LeaveType.UNPAID)
             .count();
         
-        // Calculate stipend
-        double stipendAmount = calculateStipend(intern, totalWorkingDays, paidLeaves, unpaidLeaves);
+        // Calculate stipend (only approved leaves affect stipend)
+        double stipendAmount = calculateStipend(intern, totalDaysInMonth, paidLeaves, unpaidLeaves);
+        
+        // Calculate total working days: total days in month - ALL leaves taken (all statuses)
+        // This counts all leaves regardless of approval status for working days calculation
+        int totalLeavesTaken = monthLeaves.size();
+        int totalWorkingDays = totalDaysInMonth - totalLeavesTaken;
         
         // Create invoice
         Invoice invoice = new Invoice();
@@ -95,19 +99,20 @@ public class InvoiceService {
         invoice.setPaidLeaves(paidLeaves);
         invoice.setUnpaidLeaves(unpaidLeaves);
         invoice.setStipendAmount(stipendAmount);
-        invoice.setStatus(Invoice.InvoiceStatus.PENDING);
         
         return invoiceRepository.save(invoice);
     }
     
-    private double calculateStipend(InternDetails intern, int workingDays, int paidLeaves, int unpaidLeaves) {
+    private double calculateStipend(InternDetails intern, int totalDaysInMonth, int paidLeaves, int unpaidLeaves) {
         if (intern.getStipendType() == InternDetails.StipendType.MONTHLY) {
-            // Monthly stipend - deduct only unpaid leaves
-            double dailyRate = intern.getStipendAmount() / workingDays;
+            // Monthly stipend is fixed for the whole month (e.g., 30000 for the month)
+            // Daily rate = monthly stipend / total days in month (including weekends)
+            // Deduct only unpaid leaves from the monthly stipend
+            double dailyRate = intern.getStipendAmount() / totalDaysInMonth;
             return intern.getStipendAmount() - (unpaidLeaves * dailyRate);
         } else {
-            // Daily stipend
-            int payableDays = workingDays - unpaidLeaves;
+            // Daily stipend - deduct unpaid leaves from payable days
+            int payableDays = totalDaysInMonth - unpaidLeaves;
             return payableDays * intern.getStipendAmount();
         }
     }
@@ -123,15 +128,6 @@ public class InvoiceService {
         return invoiceRepository.findAll().stream()
             .map(this::toResponse)
             .collect(Collectors.toList());
-    }
-    
-    @Transactional
-    public Invoice updateInvoiceStatus(Long invoiceId, Invoice.InvoiceStatus status, String remarks) {
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-            .orElseThrow(() -> new RuntimeException("Invoice not found"));
-        invoice.setStatus(status);
-        invoice.setRemarks(remarks);
-        return invoiceRepository.save(invoice);
     }
     
     public Invoice getInvoiceById(Long invoiceId) {
@@ -157,8 +153,11 @@ public class InvoiceService {
         // Format Aadhaar
         String formattedAadhaar = InvoiceFormatter.formatAadhaar(intern.getAadhaarNumber());
         
-        // Amount in words
-        String amountInWords = NumberToWordsConverter.convertToWords(invoice.getStipendAmount());
+        // Round total amount to nearest integer (no decimals)
+        long roundedAmount = Math.round(invoice.getStipendAmount());
+        
+        // Amount in words (using rounded amount)
+        String amountInWords = NumberToWordsConverter.convertToWords((double) roundedAmount);
         
         // Build address
         StringBuilder addressBuilder = new StringBuilder();
@@ -193,7 +192,7 @@ public class InvoiceService {
             periodTill,
             invoice.getTotalWorkingDays(),
             intern.getStipendAmount(),
-            invoice.getStipendAmount(),
+            roundedAmount,
             amountInWords,
             intern.getBankName(),
             intern.getBankAccountNumber(),
@@ -207,7 +206,7 @@ public class InvoiceService {
             String invoiceNumber, String invoiceDate, String internName, String address,
             String phoneNumber, String email, String pan, String aadhaar, 
             String periodFrom, String periodTill, int workingDays, double monthlyRate, 
-            double totalAmount, String amountInWords, String bankName, String accountNumber, 
+            long totalAmount, String amountInWords, String bankName, String accountNumber, 
             String ifscCode, String branchName, String signaturePath) {
         
         return "<!DOCTYPE html>\n" +
@@ -273,11 +272,11 @@ public class InvoiceService {
             "            </thead>\n" +
             "            <tbody>\n" +
             "                <tr>\n" +
-            "                    <td>" + periodFrom + "</td>\n" +
-            "                    <td>" + periodTill + "</td>\n" +
-            "                    <td>" + workingDays + "</td>\n" +
-            "                    <td>₹" + String.format("%.2f", monthlyRate) + "</td>\n" +
-            "                    <td>₹" + String.format("%.2f", totalAmount) + "</td>\n" +
+                    "                    <td>" + periodFrom + "</td>\n" +
+                    "                    <td>" + periodTill + "</td>\n" +
+                    "                    <td>" + workingDays + "</td>\n" +
+                    "                    <td>₹" + String.format("%.2f", monthlyRate) + "</td>\n" +
+                    "                    <td>₹" + totalAmount + "</td>\n" +
             "                </tr>\n" +
             "            </tbody>\n" +
             "        </table>\n" +
@@ -317,8 +316,6 @@ public class InvoiceService {
             invoice.getPaidLeaves(),
             invoice.getUnpaidLeaves(),
             invoice.getStipendAmount(),
-            invoice.getStatus(),
-            invoice.getRemarks(),
             invoice.getIntern().getUser().getName(),
             invoice.getIntern().getUser().getEmail()
         );
