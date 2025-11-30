@@ -19,5 +19,7 @@ public class InvoiceResponse {
     private Double stipendAmount;
     private String internName;
     private String internEmail;
+    private String status;
+    private String remarks;
 }
 

@@ -47,6 +47,13 @@ public class Invoice {
     @Column(nullable = false)
     private Double stipendAmount;
     
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private InvoiceStatus status = InvoiceStatus.PENDING;
+    
+    @Column(length = 255)
+    private String remarks;
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
@@ -59,6 +66,10 @@ public class Invoice {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+    
+    public enum InvoiceStatus {
+        PENDING, APPROVED, PAID
     }
 }
 

@@ -73,5 +73,23 @@ public class InvoiceController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    
+    @PutMapping("/{invoiceId}/status")
+    public ResponseEntity<?> updateInvoiceStatus(
+            @PathVariable Long invoiceId,
+            @RequestParam String status,
+            @RequestParam(required = false) String remarks,
+            @RequestHeader("Authorization") String token) {
+        try {
+            String role = jwtService.extractRole(token.replace("Bearer ", ""));
+            if (!"HR".equals(role)) {
+                return ResponseEntity.status(403).body("Only HR can update invoice status");
+            }
+            InvoiceResponse response = invoiceService.updateInvoiceStatus(invoiceId, status, remarks);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
 

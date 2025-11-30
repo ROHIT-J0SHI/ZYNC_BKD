@@ -99,6 +99,7 @@ public class InvoiceService {
         invoice.setPaidLeaves(paidLeaves);
         invoice.setUnpaidLeaves(unpaidLeaves);
         invoice.setStipendAmount(stipendAmount);
+        invoice.setStatus(Invoice.InvoiceStatus.PENDING);
         
         return invoiceRepository.save(invoice);
     }
@@ -133,6 +134,23 @@ public class InvoiceService {
     public Invoice getInvoiceById(Long invoiceId) {
         return invoiceRepository.findById(invoiceId)
             .orElseThrow(() -> new RuntimeException("Invoice not found"));
+    }
+    
+    @Transactional
+    public InvoiceResponse updateInvoiceStatus(Long invoiceId, String status, String remarks) {
+        Invoice invoice = getInvoiceById(invoiceId);
+        
+        try {
+            Invoice.InvoiceStatus newStatus = Invoice.InvoiceStatus.valueOf(status.toUpperCase());
+            invoice.setStatus(newStatus);
+            if (remarks != null && !remarks.trim().isEmpty()) {
+                invoice.setRemarks(remarks.trim());
+            }
+            invoice = invoiceRepository.save(invoice);
+            return toResponse(invoice);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid status: " + status + ". Must be PENDING, APPROVED, or PAID");
+        }
     }
     
     public String generateInvoiceHtml(Long invoiceId) {
@@ -317,7 +335,9 @@ public class InvoiceService {
             invoice.getUnpaidLeaves(),
             invoice.getStipendAmount(),
             invoice.getIntern().getUser().getName(),
-            invoice.getIntern().getUser().getEmail()
+            invoice.getIntern().getUser().getEmail(),
+            invoice.getStatus() != null ? invoice.getStatus().name() : "PENDING",
+            invoice.getRemarks()
         );
     }
 }
